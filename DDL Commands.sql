@@ -36,7 +36,7 @@ CREATE TABLE ProductInShops(
     Pname VARCHAR(255) NOT NULL,
     Sname VARCHAR(255) NOT NULL,
     Squantity INT NOT NULL,
-	Sprice INT NOT NULL,
+	Sprice DECIMAL(10,2) NOT NULL,
 );
 
 
@@ -51,7 +51,7 @@ CREATE TABLE PriceHistory(
     SPID INT NOT NULL, 
     startDate DATE NOT NULL,
     endDate DATE NOT NULL DEFAULT '9999-12-31',
-    price REAL NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
     Pname VARCHAR(255) NOT NULL,
     Sname VARCHAR(255) NOT NULL,    
 

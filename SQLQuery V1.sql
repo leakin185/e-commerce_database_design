@@ -57,6 +57,8 @@ CREATE TABLE PriceHistory(
     price REAL NOT NULL,
     Pname VARCHAR(255) NOT NULL,
     Sname VARCHAR(255) NOT NULL,    
+
+	CHECK (endDate > startDate)
     );
 
 
@@ -151,7 +153,10 @@ INSERT INTO PriceHistory VALUES
 (16,'2022-03-01','9999-12-31', 73,'Lango 10000mAh Powerbank','Sigma'),
 (17,'2022-02-01','9999-12-31', 52,'Premier 3ply Deluxe Bathroom Tissue 200pc, 10 rolls','Taylor'),
 (19,'2021-05-01','9999-12-31', 905,'Samsung Galaxy S22 Ultra 2021','Tinec'),
-(20,'2021-06-01','9999-12-31', 700,'Samsung Galaxy A80','Tinec');
+(20,'2021-06-01', DEFAULT, 700,'Samsung Galaxy A80','Tinec');
+
+-- Checking CHECK Constraint
+INSERT INTO PriceHistory VALUES (2,'2021-06-01','2020-12-31', 35,'Quick Drying Casual Long Pants Men Trousers M-5XL','Diageo');
 
 
 -- ALTERATIONS
@@ -159,6 +164,7 @@ ALTER TABLE Shops ALTER COLUMN name VARCHAR(255) not null;
 
 ALTER TABLE Shops ADD PRIMARY KEY(name);
 
+ALTER TABLE PriceHistory ADD CONSTRAINT check_date CHECK (endDate > startDate);
 
 -- DELETION
 DELETE FROM Products;

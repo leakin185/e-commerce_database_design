@@ -22,5 +22,6 @@ FROM ProductInShops pis, Products p
 WHERE
 -- Join tables by Pname
 pis.Pname = p.Pname AND
-p.maker = 'samsung.sg'
+p.maker = 'samsung.sg' AND
+pis.remarks = 'Selling'
 GROUP BY p.Pname

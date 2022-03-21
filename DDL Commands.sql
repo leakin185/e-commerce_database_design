@@ -36,7 +36,8 @@ CREATE TABLE ProductInShops(
     Pname VARCHAR(255) NOT NULL,
     Sname VARCHAR(255) NOT NULL,
     Squantity INT NOT NULL,
-	Sprice DECIMAL(10,2) NOT NULL,
+    Sprice DECIMAL(10,2) NOT NULL,
+    remarks VARCHAR(255) NOT NULL DEFAULT('Selling') CHECK(remarks ='Not Selling' OR remarks = 'Selling')
 );
 
 
@@ -45,17 +46,16 @@ CREATE TABLE PriceHistory(
     PRIMARY KEY (SPID, startDate, endDate),
     UNIQUE (Pname, Sname, startDate, endDate),
     CONSTRAINT fk_PriceHistory_SPID FOREIGN KEY (SPID) REFERENCES ProductInShops(SPID) ON UPDATE NO ACTION,-- I can't declare it as CASCADE policy. What to do on Delete?
-	CONSTRAINT fk_PriceHistory_PSname FOREIGN KEY (Pname, Sname) REFERENCES ProductInShops(Pname, Sname) ON UPDATE NO ACTION, -- I can't declare it as CASCADE policy. What to do on Delete?
+    CONSTRAINT fk_PriceHistory_PSname FOREIGN KEY (Pname, Sname) REFERENCES ProductInShops(Pname, Sname) ON UPDATE NO ACTION, -- I can't declare it as CASCADE policy. What to do on Delete?
 
-	id INT NOT NULL IDENTITY(1,1),
+    id INT NOT NULL IDENTITY(1,1),
     SPID INT NOT NULL, 
-    startDate DATE NOT NULL,
+    startDate DATE NOT NULL DEFAULT Convert(date, GETDATE()),
     endDate DATE NOT NULL DEFAULT '9999-12-31',
     price DECIMAL(10,2) NOT NULL,
     Pname VARCHAR(255) NOT NULL,
     Sname VARCHAR(255) NOT NULL,    
-
-	CHECK (endDate > startDate)
+    CHECK (endDate > startDate)
     );
 
 

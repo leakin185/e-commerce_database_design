@@ -59,11 +59,47 @@ CREATE TABLE PriceHistory(
     );
 
 -- EMPLOYEES
-CREATE TABLE Employees (
+CREATE TABLE Employees(
     ID INT NOT NULL IDENTITY(1,1),
     PRIMARY KEY(ID),
     Name varchar(255) NOT NULL,
     Salary int NOT NULL
 );
 
+-- Users
+CREATE TABLE Users (
+    PRIMARY KEY(UserID),
+    UserID INT NOT NULL IDENTITY (1,1),
+    Uname VARCHAR(255) NOT NULL,
+);
 
+-- Order
+CREATE TABLE Orders(
+    PRIMARY KEY (OID),
+    UNIQUE (UserID, date_time),
+    FOREIGN KEY (UserID) REFERENCES Users (UserID)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+
+    OID INT NOT NULL IDENTITY (1,1),
+    date_time DATE NOT NULL,
+    UserID INT NOT NULL,
+    shipping_address VARCHAR (225) NOT NULL
+);
+
+-- Feedback (Pending for Product in Order 1 to load in) 
+-- CREATE TABLE Feedback (
+--     PRIMARY KEY (UserID, OPID)
+--     FOREIGN KEY (UserID) REFERENCES Users(UserID)
+--     ON DELETE CASCADE
+--     ON UPDATE CASCADE,
+--     FOREIGN KEY (OPID) REFERENCES ProductInOrders1(OPID)
+--     ON DELETE CASCADE
+--     ON UPDATE CASCADE,
+
+--     UserID INT NOT NULL,
+--     OPID INT NOT NULL,
+--     rating INT NOT NULL
+--     date_time DATE NOT NULL,
+--     comment varchar(255) NOT NULL,
+-- );

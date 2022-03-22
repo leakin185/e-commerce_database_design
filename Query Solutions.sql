@@ -16,8 +16,46 @@ GROUP BY ph.Pname;
 ----------------------------------------------------------------
 -- 2) Find products that received at least 100 ratings of “5” in August 2021, and order them by their average ratings.
 
+-- Make a template to replace OPID with product name
+SELECT pis.Pname, f.rating, f.date_time
+INTO R
+FROM ProductInShop AS pis, ProductInOrder AS pio, Feedback AS f
+WHERE (f.OPID = pio.OPID)
+AND (pio.SPID = pis.SPID);
+
+-- Main Query
+SELECT R.Pname, AVG(R.rating) AS AverageRating
+FROM R
+WHERE 
+(R.date_time > '2021-07-31' AND R.date_time <= '2021-08-31')
+AND R.Pname in 
+(
+    -- Get the name of product that received at least 100 ratings of "5" in August
+    SELECT DISTINCT R.name
+    FROM R
+    WHERE
+    -- Filter: Feedbacks given in August 2021
+    (R.date_time > '2021-07-31' AND R.date_time <= '2021-08-31')
+    -- Filter: Rating of 5
+    AND (R.rating = 5)
+    GROUP BY R.Pname
+    -- At least 100 ratings
+    HAVING COUNT(R.Pname) >= 100
+)
+ORDER BY AverageRating DESC;
+
 ----------------------------------------------------------------
 -- 3) For all products purchased in June 2021 that have been delivered, find the average time from the ordering date to the delivery date.
+SELECT AVG(R.Difference) as AvgDateDifference
+FROM (
+    SELECT o.date_time, PIO.date_time, PIO.date_time - o.date_time as Difference
+    FROM Orders as o, ProductInOrder as PIO
+    WHERE (o.OPID = PIO.OPID)
+    -- Order pruchased in June 2021
+    AND (o.date_time > '2021-05-31' AND o.date_time <= '2021-06-31')
+    -- Has been delivered
+    AND (PIO.status = 'delivered')
+) as R
 
 ----------------------------------------------------------------
 -- 4) Let us define the “latency” of an employee by the average that he/she takes to process a complaint. Find the employee with the smallest latency.

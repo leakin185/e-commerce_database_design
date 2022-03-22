@@ -58,6 +58,12 @@ CREATE TABLE PriceHistory(
     CHECK (endDate > startDate)
     );
 
-
+-- EMPLOYEES
+CREATE TABLE Employees (
+    ID INT NOT NULL IDENTITY(1,1),
+    PRIMARY KEY(ID),
+    Name varchar(255) NOT NULL,
+    Salary int NOT NULL
+);
 
 

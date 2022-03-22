@@ -87,3 +87,18 @@ INSERT INTO PriceHistory VALUES
 (17,'2022-02-01','9999-12-31', 52,'Premier 3ply Deluxe Bathroom Tissue 200pc, 10 rolls','Taylor'),
 (19,'2021-05-01','9999-12-31', 905,'Samsung Galaxy S22 Ultra 2021','Tinec'),
 (20,'2021-06-01', DEFAULT, 700,'Samsung Galaxy A80','Tinec');
+
+
+-- EMPLOYEES
+INSERT INTO Employees(ID, name, salary)
+VALUES('1','Alicia Summer','14524'),
+('2','Allycia Elder','11475'),
+('3','Saylor Peck','13186'),
+('4','Cherette Sadler','14288'),
+('5','Tang Fu Xuan','3297'),
+('6','Ronda Foster','4634'),
+('7','Tina Hubbard','12286'),
+('8','Shena Armistead','1022'),
+('9','Kennith Bella Abram','10852'),
+('10','Tai Yawen Xie, Christine','3319')
+;

@@ -1,6 +1,7 @@
 -- QUERY SOLUTIONS
 
--- 1)
+-- 1) Find the average price of “iPhone Xs” on Shiokee from 1 August 2021 to 31 August 2021.
+
 SELECT ph.Pname, AVG(ph.price) AS AveragePrice--ph.startDate, ph.endDate, ph.price
 FROM  PriceHistory ph
 WHERE
@@ -11,12 +12,15 @@ WHERE
 AND ph.Pname = 'Apple iPhone Xs 2022'
 GROUP BY ph.Pname;
 
--- 5i)
+
+
+
+-- 5i) Produce a list that contains (i) all products made by Samsung
 SELECT p.Pname
 FROM Products p
 WHERE p.Maker = 'samsung.sg'
 
--- 5ii)
+-- 5ii)for each of them, the number of shops on Shiokee that sell the product. 
 SELECT p.Pname, COUNT(pis.Sname) AS numShops
 FROM ProductInShops pis, Products p 
 WHERE
@@ -25,3 +29,14 @@ pis.Pname = p.Pname AND
 p.maker = 'samsung.sg' AND
 pis.remarks = 'Selling'
 GROUP BY p.Pname
+
+
+
+-- 8) Find products that have never been purchased by some users
+--    but are the top 5 most purchased products by other users in August 2021.
+
+-- Justification/Logic:
+--      Can split this into 2 parts, according to above paragraphing
+
+--  Part a)
+--  Never purchased by some users --> for every user, can have a list of the products they bought, and 

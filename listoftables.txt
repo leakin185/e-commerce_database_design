@@ -1,0 +1,19 @@
+--FOR REFERENCE, in solving the queries--
+
+--Removed Products in Shops 2 cos overlap
+
+Primary Keys have ** next to them
+
+
+Product (*Pname*, maker, category)
+Employees (*ID*, name, salary)
+Shops (*name*) 
+Users (*User ID*, Uname)
+Complaints (*ID*, text, filed date-time, status, employee ID, user ID, handled date-time)
+Complaints-on-shops (*complaints ID*, shop name, filed date-time, user ID)
+Complaints-on-orders (*complaints ID*, order ID, filed date-time, user ID)
+Orders (*Order ID*, date-time, shipping address, User ID) 
+Feedback (*user ID*, *OPID*, rating, date-time, comment) 
+PRODUCT-IN-ORDERS 1(*OPID*, Oprice, Oquantity, status, deliver-date, orderID, Spid)
+Product-In-Shops (*SPID*, Pname, Sname,Squantity,  Sprice, Remarks)
+Price-History (*SPID*, startDate, endDate, price, Pname, Sname)

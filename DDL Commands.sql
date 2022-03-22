@@ -87,6 +87,24 @@ CREATE TABLE Orders(
     shipping_address VARCHAR (225) NOT NULL
 );
 
+CREATE TABLE ProductInOrders (
+    PRIMARY KEY (OPID),
+    UNIQUE (orderID, SPID),
+    FOREIGN KEY (SPID) REFERENCES ProductInShops(SPID)
+	ON UPDATE CASCADE,
+    FOREIGN KEY (orderID) REFERENCES Orders (OID)
+	ON DELETE NO ACTION
+    ON UPDATE CASCADE,
+    
+    OPID INT NOT NULL,
+    Oprice DECIMAL(10,2),
+    Oquantity INT,
+    deliverDate DATE,
+	orderStatus varchar(15) CHECK (orderStatus IN('being processed', 'shipped', 'delivered', 'returned')),
+	orderID INT,
+	SPID INT
+);
+
 -- Feedback (Pending for Product in Order 1 to load in) 
 -- CREATE TABLE Feedback (
 --     PRIMARY KEY (UserID, OPID)

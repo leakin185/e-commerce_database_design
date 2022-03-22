@@ -8,6 +8,10 @@ BEGIN
 	FROM PriceHistory ph
 	INNER JOIN inserted i on ph.SPID = i.SPID AND ph.endDate = '9999-12-31' AND
 	i.remarks = 'Not Selling'
+	
+	UPDATE ProductInShops set Sprice = NULL 
+	FROM inserted i, ProductInShops pis
+	WHERE i.SPID = pis.SPID AND i.remarks = 'Not Selling'
 END
 
 GO
@@ -49,11 +53,14 @@ BEGIN
 	SELECT @spid = i.SPID, @pname = i.Pname, @sname = i.Sname, @sprice = i.Sprice
 	FROM inserted i
 	
+	IF(@sprice is not null)
+	BEGIN
 	UPDATE PriceHistory set endDate = DATEADD(day, -1, CAST(GETDATE() AS date))
 	WHERE SPID = @spid AND endDate = '9999-12-31'
 
 	INSERT INTO PriceHistory
 	VALUES(@spid, default, default, @sprice, @pname, @sname)
+	END
 	
 
 END

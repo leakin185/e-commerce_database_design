@@ -91,24 +91,22 @@ WHERE
 GROUP BY s.name
 HAVING SUM(pio.Oprice* pio.Oquantity)= (
 
--- get Max scalar value
+-- get Max scalar value for Revenue
 SELECT MAX(X.Revenue)
 FROM(
-    SELECT s.name, SUM(pio.Oprice* pio.Oquantity) AS Revenue
-    FROM Shops s, Orders o, ProductInShops pis, ProductInOrders pio
+    SELECT s1.name, SUM(pio1.Oprice* pio1.Oquantity) AS Revenue
+    FROM Shops s1, Orders o1, ProductInShops pis1, ProductInOrders pio1
     WHERE
 -- Join tables
-    s.name = pis.Sname AND
-        pis.SPID = pio.SPID AND
-        pio.orderID = o.OID AND
-        MONTH(o.date_time) = 8 AND
-        YEAR(o.date_time) = 2021
-    GROUP BY s.name) AS X);
+        s1.name = pis1.Sname AND
+        pis1.SPID = pio1.SPID AND
+        pio1.orderID = o1.OID AND
+        MONTH(o1.date_time) = 8 AND
+        YEAR(o1.date_time) = 2021
+    GROUP BY s1.name) AS X);
 
 ----------------------------------------------------------------
 -- 7) For users that made the most amount of complaints, find the most expensive products he/she has ever purchased.
-SELECT u1.userID, 
-FROM Users u1;
     
 
 

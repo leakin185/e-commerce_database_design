@@ -116,7 +116,7 @@ FROM(
 
 
 ----------------------------------------------------------------
--- 8) Find products that have never been purchased by some users
+--8) Find products that have never been purchased by some users
 --    but are the top 5 most purchased products by other users in August 2021.
 
 -- Justification/Logic:
@@ -132,13 +132,16 @@ FROM(
 ----> if >1, for every product, if COUNT(numoftimesitappear) >1, then it fufils a) criterias
 
 --ai)
-SELECT PIS.Pname 
-FROM ProductInShop AS pis, ProductInOrder AS pio, Orders as o, Users as u
+SELECT pis.Pname 
+FROM ProductInShop AS pis, ProductInOrder AS pio, Orders AS o, Users AS u
 WHERE pis.SPID = pio.SPID AND pio.orderID = o.orderid AND o.UserID = u.userID
 GROUP BY u.UserID;
 
 -- aii) need to create global set of all products, for each user --> try create view? create view need its own file so yea refer to VIEWS.sql
---CREATE VIEW aii AS SELECT 
+--CREATE VIEW aii AS SELECT * 
+--FROM Product AS p, Users AS u
+--GROUP BY u
+
 
 -- Joining a) and b)
 ---> Use INTERSECT, although its "but", logically seems more like "and"
@@ -148,7 +151,6 @@ GROUP BY u.UserID;
 ----> top 5 would require for every user, a SELECT TOP 5 (attribute) FROM xxx GROUP BY COUNT(numofpurchases) ORDER BY COUNT(numofpurchases) DESC
 ----> and filter by date WHERE ...
 ----> but need OTHER users, so need take the above table and minus all the users from part a)
-
 
 
 ----------------------------------------------------------------

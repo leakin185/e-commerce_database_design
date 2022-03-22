@@ -619,3 +619,11 @@ INSERT INTO Feedback(UserID, OPID, rating, date_time, comment) VALUES
 (112,11212,5,'2021-08-29','very good'),
 (113,11312,5,'2021-08-30','very good'),
 (114,11412,5,'2021-08-15','very good');
+
+--Complaints
+INSERT INTO Complaints(text, filed_date_time, status, EmployeeID, UserID, handled_date_time) VALUES
+('Order came late','2021-09-19 11:23:50 AM', 'Addressed', 1 ,1 ,'2021-10-19 12:28:50 AM'),
+('Products damaged on arrivial','2021-08-07 07:00', 'Pending', NULL ,2 , NULL),
+('Missing Products','2021-08-30 13:24:28', 'Addressed', 3 ,3 ,'2021-08-31 14:00:25'),
+('I want a refund','2021-08-30 10:22:50', 'Addressed', 3 ,4 ,'2021-09-02 14:22:50'),
+('Packinging Damage','2021-07-17 15:23:40', 'Being Handled', 4 ,5 , NULL);

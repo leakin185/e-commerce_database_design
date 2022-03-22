@@ -217,5 +217,4 @@ DROP TABLE Products;
 DROP TABLE Shops;
 DROP TABLE ProductInShops;
 DROP TABLE PriceHistory;
-DROP TABLE Complaints;
 

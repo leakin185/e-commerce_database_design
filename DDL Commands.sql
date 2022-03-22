@@ -142,11 +142,11 @@ Create TABLE Complaints(
 
 	ComplaintID INT Not NULL Identity(1,1),
 	text varchar (255) NOT NULL,
-	filed_date_time DATETIME NOT NULL DEFAULT Convert(date, GETDATE()),
+	filed_date_time DATETIME NOT NULL DEFAULT Convert(datetime, GETDATE(),3),
 	status varchar(225) NOT NULL,
 	EmployeeID INT,
 	UserID INT NOT NULL,
-    handled_date_time DATETIME DEFAULT Convert(date, GETDATE()),
+    handled_date_time DATETIME DEFAULT Convert(datetime, GETDATE()),
 	CHECK (handled_date_time > filed_date_time)
 );
 
@@ -164,7 +164,7 @@ Create TABLE ComplaintsOnShops(
 	ON UPDATE NO ACTION,
 
 	ComplaintID INT Not NULL,
-	filed_date_time DATETIME NOT NULL DEFAULT Convert(date, GETDATE()),
+	filed_date_time DATETIME NOT NULL DEFAULT Convert(datetime, GETDATE()),
 	ShopName varchar(255) Not NULL,
 	UserID INT NOT NULL,
 );
@@ -183,7 +183,7 @@ Create TABLE ComplaintsOnOrders(
 	ON UPDATE NO ACTION,
 
 	ComplaintID INT Not NULL,
-	filed_date_time DATETIME NOT NULL DEFAULT Convert(date, GETDATE()),
+	filed_date_time DATETIME NOT NULL DEFAULT Convert(datetime, GETDATE()),
 	OID INT Not NULL,
 	UserID INT NOT NULL,
 );

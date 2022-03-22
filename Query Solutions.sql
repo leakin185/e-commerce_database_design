@@ -19,7 +19,7 @@ GROUP BY ph.Pname;
 -- Make a template to replace OPID with product name
 SELECT pis.Pname, f.rating, f.date_time
 INTO R
-FROM ProductInShop AS pis, ProductInOrder AS pio, Feedback AS f
+FROM ProductInShop AS pis, ProductInOrders AS pio, Feedback AS f
 WHERE (f.OPID = pio.OPID)
     AND (pio.SPID = pis.SPID);
 

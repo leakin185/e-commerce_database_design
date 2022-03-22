@@ -49,7 +49,7 @@ ORDER BY AverageRating DESC;
 SELECT AVG(R.Difference) as AvgDateDifference
 FROM (
     SELECT o.date_time, PIO.date_time, PIO.date_time - o.date_time as Difference
-    FROM Orders as o, ProductInOrder as PIO
+    FROM Orders as o, ProductInOrders as PIO
     WHERE (o.OPID = PIO.OPID)
         -- Order pruchased in June 2021
         AND (o.date_time > '2021-05-31' AND o.date_time <= '2021-06-31')
@@ -78,25 +78,42 @@ GROUP BY p.Pname
 
 ----------------------------------------------------------------
 -- 6) Find shops that made the most revenue in August 2021.
-SELECT s.name, SUM(pio.Oprice*Oquantity) as Revenue
+
+SELECT s.name, SUM(pio.Oprice* pio.Oquantity) AS Revenue
 FROM Shops s, Orders o, ProductInShops pis, ProductInOrders pio
 WHERE
 -- Join tables
     s.name = pis.Sname AND
     pis.SPID = pio.SPID AND
-    pio.OID = o.OID AND
+    pio.orderID = o.OID AND
     MONTH(o.date_time) = 8 AND
-    YEAR(o.date_time) = 2021 AND
-    Revenue = 
-    (SELECT MAX(SUM(pio2.Oprice*Oquantity))
-    FROM ProductInOrders as pio2
-    )
-GROUP BY s.name; 
+    YEAR(o.date_time) = 2021
+GROUP BY s.name
+HAVING SUM(pio.Oprice* pio.Oquantity)= (
 
--- to be tested after ProductInOrders table is uploaded
+-- get Max scalar value
+SELECT MAX(X.Revenue)
+FROM(
+    SELECT s.name, SUM(pio.Oprice* pio.Oquantity) AS Revenue
+    FROM Shops s, Orders o, ProductInShops pis, ProductInOrders pio
+    WHERE
+-- Join tables
+    s.name = pis.Sname AND
+        pis.SPID = pio.SPID AND
+        pio.orderID = o.OID AND
+        MONTH(o.date_time) = 8 AND
+        YEAR(o.date_time) = 2021
+    GROUP BY s.name) AS X);
 
 ----------------------------------------------------------------
 -- 7) For users that made the most amount of complaints, find the most expensive products he/she has ever purchased.
+SELECT u1.userID, 
+FROM Users u1;
+    
+
+
+
+
 
 ----------------------------------------------------------------
 -- 8) Find products that have never been purchased by some users

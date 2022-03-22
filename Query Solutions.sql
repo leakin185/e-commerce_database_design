@@ -78,6 +78,8 @@ GROUP BY p.Pname
 
 ----------------------------------------------------------------
 -- 6) Find shops that made the most revenue in August 2021.
+-- outline: 
+-- for each shop, find their orders made in August 2021, and calculated the revenue from their products in orders with price * quantity 
 
 SELECT s.name, SUM(pio.Oprice* pio.Oquantity) AS Revenue
 FROM Shops s, Orders o, ProductInShops pis, ProductInOrders pio

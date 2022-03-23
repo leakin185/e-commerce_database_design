@@ -205,21 +205,33 @@ EXCEPT
 
 --so final subquery for a) looks like:
 --only run this AFTER creating the aii view!
-SELECT DISTINCT p.Pname
-FROM Products as p
-WHERE EXISTS (
-                                                                SELECT *
-    FROM aii
-EXCEPT
-    (
-    SELECT u.UserID, pis.Pname
-    FROM ProductInShops AS pis, ProductInOrders AS pio, Orders AS o, Users AS u
-    WHERE pis.SPID = pio.SPID AND pio.orderID = o.OID AND o.UserID = u.userID
-        AND p.Pname = pis.Pname
-    --added this line here
-    GROUP BY u.UserID, pis.Pname
-    )
-)
+
+--//////////////////////IGNORE, WRONG//////////////////
+-- SELECT DISTINCT p.Pname
+-- FROM Products as p
+-- WHERE EXISTS (
+--     SELECT *
+--     FROM aii
+-- EXCEPT
+--     (
+--     SELECT u.UserID, pis.Pname
+--     FROM ProductInShops AS pis, ProductInOrders AS pio, Orders AS o, Users AS u
+--     WHERE pis.SPID = pio.SPID AND pio.orderID = o.OID AND o.UserID = u.userID
+--         AND p.Pname = pis.Pname
+--     --added this line here
+--     GROUP BY u.UserID, pis.Pname
+--     )
+-- )//////////////////////////////////////////////////////
+
+    SELECT DISTINCT p.Pname 
+    FROM (
+        SELECT * FROM aii EXCEPT (
+            SELECT u.UserID, pis.Pname
+            FROM ProductInShops AS pis, ProductInOrders AS pio, Orders AS o, Users AS u
+            WHERE pis.SPID = pio.SPID AND pio.orderID = o.OID AND o.UserID = u.userID 
+            GROUP BY u.UserID, pis.Pname)
+	) AS p
+
 --LMAO this just ends up being the entire product list again (14 products)
 
 -- Joining a) and b)
@@ -298,21 +310,14 @@ EXCEPT
 -----------------------------------------FINAL Q8 QUERY (finally)--------------------------
 --a)
     (
-    SELECT DISTINCT p.Pname
-    FROM Products as p
-    WHERE EXISTS (
-                                                                                                                                SELECT *
-        FROM aii
-    EXCEPT
-        (
-        SELECT u.UserID, pis.Pname
-        FROM ProductInShops AS pis, ProductInOrders AS pio, Orders AS o, Users AS u
-        WHERE pis.SPID = pio.SPID AND pio.orderID = o.OID AND o.UserID = u.userID
-            AND p.Pname = pis.Pname
-        --added this line here
-        GROUP BY u.UserID, pis.Pname
-        )
-    )
+    SELECT DISTINCT p.Pname 
+    FROM (
+        SELECT * FROM aii EXCEPT (
+            SELECT u.UserID, pis.Pname
+            FROM ProductInShops AS pis, ProductInOrders AS pio, Orders AS o, Users AS u
+            WHERE pis.SPID = pio.SPID AND pio.orderID = o.OID AND o.UserID = u.userID 
+            GROUP BY u.UserID, pis.Pname)
+	) AS p
 )
 INTERSECT
 

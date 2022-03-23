@@ -153,8 +153,8 @@ GROUP BY u.UserID;
 
 --so final subquery for a looks like:
 --only run this AFTER creating the aii view!
-SELECT DISTINCT p.Pname
-FROM product as p
+SELECT DISTINCT p.Pname, u.UserID
+FROM product as p, Users as u
 WHERE p.Pname IN (
     SELECT * FROM aii EXCEPT (
         SELECT pis.Pname, u,UserID 
@@ -172,7 +172,7 @@ WHERE p.Pname IN (
 ----> top 5 would require for every user, a SELECT TOP 5 (attribute) FROM xxx GROUP BY COUNT(numofpurchases) ORDER BY COUNT(numofpurchases) DESC
 ----> and filter by date WHERE ...
 ----> but need OTHER users, so need take the above table and minus all the users from part a)
-
+SELECT 
 
 ----------------------------------------------------------------
 -- 9) Find products that are increasingly being purchased over at least 3 months

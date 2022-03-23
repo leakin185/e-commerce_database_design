@@ -123,8 +123,8 @@ FROM(
 ----------------------------------------------------------------
 -- 7) For users that made the most amount of complaints, find the most expensive products he/she has ever purchased.
 
--- return shop-product ID which uniquely identifies the product
-SELECT pio1.SPID
+-- return shop-product ID which uniquely identifies the product and also the user ID which made the most amount of complaints
+SELECT s2.UserID, pio1.SPID
 FROM Users s2, Orders o1, ProductInOrders pio1
 WHERE s2.UserID = o1.UserID AND
     o1.OID = pio1.orderID AND
@@ -208,7 +208,7 @@ EXCEPT
 SELECT DISTINCT p.Pname
 FROM Products as p
 WHERE EXISTS (
-                                                        SELECT *
+                                                                SELECT *
     FROM aii
 EXCEPT
     (
@@ -301,7 +301,7 @@ EXCEPT
     SELECT DISTINCT p.Pname
     FROM Products as p
     WHERE EXISTS (
-                                                                                                                SELECT *
+                                                                                                                                SELECT *
         FROM aii
     EXCEPT
         (
@@ -321,7 +321,7 @@ INTERSECT
     SELECT DISTINCT p.Pname
     FROM Products AS p
     WHERE EXISTS(
-                                                            (
+                                                                    (
                 SELECT *
         FROM aii
     EXCEPT

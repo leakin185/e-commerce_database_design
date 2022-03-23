@@ -60,11 +60,18 @@ FROM (
 ----------------------------------------------------------------
 -- 4) Let us define the “latency” of an employee by the average that he/she takes to process a complaint. Find the employee with the smallest latency.
 --Find minimum averge Latency
-SELECT X.EmployeeID FROM (SELECT EmployeeID, AVG(DATEDIFF(hour, filed_date_time, handled_date_time)) AS [Latency]
-FROM Complaints AS C WHERE handled_date_time IS NOT NULL GROUP BY EmployeeID) AS X GROUP BY EmployeeID
+SELECT X.EmployeeID
+FROM (SELECT EmployeeID, AVG(DATEDIFF(hour, filed_date_time, handled_date_time)) AS [Latency]
+    FROM Complaints AS C
+    WHERE handled_date_time IS NOT NULL
+    GROUP BY EmployeeID) AS X
+GROUP BY EmployeeID
 HAVING MIN(Latency) =
-(SELECT MIN(Latency) AS MinLatency FROM (SELECT EmployeeID, AVG(DATEDIFF(hour, filed_date_time, handled_date_time)) AS [Latency]
-FROM Complaints AS C WHERE handled_date_time IS NOT NULL GROUP BY EmployeeID) AS Y)
+(SELECT MIN(Latency) AS MinLatency
+FROM (SELECT EmployeeID, AVG(DATEDIFF(hour, filed_date_time, handled_date_time)) AS [Latency]
+    FROM Complaints AS C
+    WHERE handled_date_time IS NOT NULL
+    GROUP BY EmployeeID) AS Y)
 
 ----------------------------------------------------------------
 -- 5i) Produce a list that contains (i) all products made by Samsung
@@ -115,11 +122,34 @@ FROM(
 
 ----------------------------------------------------------------
 -- 7) For users that made the most amount of complaints, find the most expensive products he/she has ever purchased.
-    
 
+-- return shop-product ID which uniquely identifies the product
+SELECT pio1.SPID
+FROM Users s2, Orders o1, ProductInOrders pio1
+WHERE s2.UserID = o1.UserID AND
+    o1.OID = pio1.orderID AND
+    pio1.Oprice = (
 
+-- get maximum individual product price the user(s) has ordered 
+SELECT MAX(pio.Oprice)
+    FROM Users s1, Orders o, ProductInOrders pio
+    WHERE s1.UserID = o.UserID AND
+        o.OID = pio.orderID AND
+        s1.UserID IN (
 
+-- return user(s) that made the most amount of complaints (including both shop and product complaints)
+SELECT s.UserID
+        FROM Users s, Complaints c
+        WHERE s.UserID = c.UserID
+        GROUP BY s.UserID
+        HAVING COUNT(*) = (
 
+SELECT MAX(X.Count)
+        FROM(
+SELECT s.UserID, COUNT(*) AS Count
+            FROM Users s, Complaints c
+            WHERE s.UserID = c.UserID
+            GROUP BY s.UserID) AS X)));
 
 ----------------------------------------------------------------
 --8) Find products that have never been purchased by some users
@@ -139,7 +169,7 @@ FROM(
 ----> if >1, for every product, if COUNT(numoftimesitappear) >1, then it fufils a) criterias
 
 --ai) for every user, products they bought
-SELECT pis.Pname, u.UserID 
+SELECT pis.Pname, u.UserID
 FROM ProductInShops AS pis, ProductInOrders AS pio, Orders AS o, Users AS u
 WHERE pis.SPID = pio.SPID AND pio.orderID = o.OID AND o.UserID = u.userID
 GROUP BY u.UserID, pis.Pname;
@@ -158,7 +188,10 @@ GROUP BY u.UserID, pis.Pname;
 --the () subquery above should return for each user, what prooducts they nvr buy
 
 --subquery for selecting products, for each user, that they NVR buy before
-SELECT * FROM aii EXCEPT (
+    SELECT *
+    FROM aii
+EXCEPT
+    (
     SELECT u.UserID, pis.Pname
     FROM ProductInShops AS pis, ProductInOrders AS pio, Orders AS o, Users AS u
     WHERE pis.SPID = pio.SPID AND pio.orderID = o.OID AND o.UserID = u.userID
@@ -172,14 +205,18 @@ SELECT * FROM aii EXCEPT (
 
 --so final subquery for a) looks like:
 --only run this AFTER creating the aii view!
-SELECT DISTINCT p.Pname 
+SELECT DISTINCT p.Pname
 FROM Products as p
 WHERE EXISTS (
-    SELECT * FROM aii EXCEPT (
+                                                    SELECT *
+    FROM aii
+EXCEPT
+    (
     SELECT u.UserID, pis.Pname
     FROM ProductInShops AS pis, ProductInOrders AS pio, Orders AS o, Users AS u
-    WHERE pis.SPID = pio.SPID AND pio.orderID = o.OID AND o.UserID = u.userID 
-    AND p.Pname = pis.Pname --added this line here
+    WHERE pis.SPID = pio.SPID AND pio.orderID = o.OID AND o.UserID = u.userID
+        AND p.Pname = pis.Pname
+    --added this line here
     GROUP BY u.UserID, pis.Pname
     )
 )
@@ -202,16 +239,16 @@ WHERE EXISTS (
 
 SELECT r.UserID, r.Pname
 FROM
-(
+    (
     --everything in this subquery returns for every user, the products they bought *sorted by COUNT(products they bought across all orders)
     --used a view to link all users with all products they bought
 	SELECT *,
-	ROW_NUMBER() OVER(PARTITION BY r.UserID
+        ROW_NUMBER() OVER(PARTITION BY r.UserID
 					  ORDER BY (
 							SELECT COUNT(r.Pname) AS numofproducts
 							FROM q8b as r)
 					  DESC) rownum
-	FROM q8b AS r --q8b is a view
+    FROM q8b AS r --q8b is a view
 ) r
 WHERE r.rownum <= 5
 ORDER BY r.UserID ASC
@@ -227,17 +264,20 @@ SELECT DISTINCT p.Pname
 FROM Products AS p
 WHERE EXISTS(
     (
-        SELECT * FROM aii EXCEPT (
-        SELECT u.UserID, pis.Pname
-        FROM ProductInShops AS pis, ProductInOrders AS pio, Orders AS o, Users AS u
-        WHERE pis.SPID = pio.SPID AND pio.orderID = o.OID AND o.UserID = u.userID 
-        GROUP BY u.UserID, pis.Pname
-        )
-    )
-    EXCEPT
+    SELECT *
+    FROM aii
+EXCEPT
     (
-        SELECT r.UserID, r.Pname
-        FROM
+    SELECT u.UserID, pis.Pname
+    FROM ProductInShops AS pis, ProductInOrders AS pio, Orders AS o, Users AS u
+    WHERE pis.SPID = pio.SPID AND pio.orderID = o.OID AND o.UserID = u.userID
+    GROUP BY u.UserID, pis.Pname
+        )
+)
+EXCEPT
+    (
+    SELECT r.UserID, r.Pname
+    FROM
         (
             --everything in this subquery returns for every user, the products they bought *sorted by COUNT(products they bought across all orders)
             --used a view to link all users with all products they bought
@@ -247,9 +287,9 @@ WHERE EXISTS(
                                     SELECT COUNT(r.Pname) AS numofproducts
                                     FROM q8b as r)
                             DESC) rownum
-            FROM q8b AS r --q8b is a view
+        FROM q8b AS r --q8b is a view
         ) r
-        WHERE r.rownum <= 5
+    WHERE r.rownum <= 5
     )
 )
 
@@ -257,38 +297,45 @@ WHERE EXISTS(
 
 -----------------------------------------FINAL Q8 QUERY (finally)--------------------------
 --a)
-(
-    SELECT DISTINCT p.Pname 
+    (
+    SELECT DISTINCT p.Pname
     FROM Products as p
     WHERE EXISTS (
-        SELECT * FROM aii EXCEPT (
+                                                                                                        SELECT *
+        FROM aii
+    EXCEPT
+        (
         SELECT u.UserID, pis.Pname
         FROM ProductInShops AS pis, ProductInOrders AS pio, Orders AS o, Users AS u
-        WHERE pis.SPID = pio.SPID AND pio.orderID = o.OID AND o.UserID = u.userID 
-        AND p.Pname = pis.Pname --added this line here
+        WHERE pis.SPID = pio.SPID AND pio.orderID = o.OID AND o.UserID = u.userID
+            AND p.Pname = pis.Pname
+        --added this line here
         GROUP BY u.UserID, pis.Pname
         )
     )
 )
 INTERSECT
 
---b)
-(
+    --b)
+    (
     SELECT DISTINCT p.Pname
     FROM Products AS p
     WHERE EXISTS(
+                                                        (
+                SELECT *
+        FROM aii
+    EXCEPT
         (
-            SELECT * FROM aii EXCEPT (
-            SELECT u.UserID, pis.Pname
-            FROM ProductInShops AS pis, ProductInOrders AS pio, Orders AS o, Users AS u
-            WHERE pis.SPID = pio.SPID AND pio.orderID = o.OID AND o.UserID = u.userID 
-            GROUP BY u.UserID, pis.Pname
+        SELECT u.UserID, pis.Pname
+        FROM ProductInShops AS pis, ProductInOrders AS pio, Orders AS o, Users AS u
+        WHERE pis.SPID = pio.SPID AND pio.orderID = o.OID AND o.UserID = u.userID
+        GROUP BY u.UserID, pis.Pname
             )
-        )
-        EXCEPT
+    )
+    EXCEPT
         (
-            SELECT r.UserID, r.Pname
-            FROM
+        SELECT r.UserID, r.Pname
+        FROM
             (
                 --everything in this subquery returns for every user, the products they bought *sorted by COUNT(products they bought across all orders)
                 --used a view to link all users with all products they bought
@@ -298,9 +345,9 @@ INTERSECT
                                         SELECT COUNT(r.Pname) AS numofproducts
                                         FROM q8b as r)
                                 DESC) rownum
-                FROM q8b AS r --q8b is a view
+            FROM q8b AS r --q8b is a view
             ) r
-            WHERE r.rownum <= 5
+        WHERE r.rownum <= 5
         )
     )
 )

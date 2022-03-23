@@ -190,15 +190,40 @@ WHERE EXISTS (
 
 -- b) top 5 most purchased products by other users in August 2021
 ----> this is messy haha, 
-----> for top 5 most purchased products isit referring to top 5 num of products (so need num of orders x product per order), or top 5 num of orders containing that product haha
+----> taking absolute number,
 
 ----> top 5 would require for every user, a SELECT TOP 5 (attribute) FROM xxx GROUP BY userID ORDER BY COUNT(numofpurchases) DESC
 -----> isit group by userID or COUNT(numofpurchases) ?
 ----> and filter by date WHERE ...
 ----> but need OTHER users, so need take the above table and minus all the users from part a)
 
-SELECT TOP 5 pis.Pname 
-FROM ProductInShops AS pis, ProductInOrders AS pio, Orders AS o, Users AS u
+
+
+--bi) select top 5 products for each user
+--had to outsource to stackoverflow for this one, this is tricky
+--https://stackoverflow.com/questions/176964/select-top-10-records-for-each-category
+
+SELECT r.*
+FROM
+(
+    --everything in this subquery returns for every user, the products they bought *sorted by COUNT(products they bought across all orders)
+    --used a view to link all users with all products they bought
+	SELECT *,
+	ROW_NUMBER() OVER(PARTITION BY r.UserID
+					  ORDER BY (
+							SELECT COUNT(r.Pname) AS numofproducts
+							FROM q8b as r)
+					  DESC) rownum
+	FROM q8b AS r --q8b is a view
+) r
+WHERE r.rownum <= 5
+ORDER BY r.UserID ASC
+
+--bii) filter by date 
+--alr done in creation of q8b view
+
+--biii) remove users that have appeared in a)
+
 
 ----------------------------------------------------------------
 -- 9) Find products that are increasingly being purchased over at least 3 months

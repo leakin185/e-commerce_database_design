@@ -208,7 +208,7 @@ EXCEPT
 SELECT DISTINCT p.Pname
 FROM Products as p
 WHERE EXISTS (
-                                                    SELECT *
+                                                        SELECT *
     FROM aii
 EXCEPT
     (
@@ -301,7 +301,7 @@ EXCEPT
     SELECT DISTINCT p.Pname
     FROM Products as p
     WHERE EXISTS (
-                                                                                                        SELECT *
+                                                                                                                SELECT *
         FROM aii
     EXCEPT
         (
@@ -321,7 +321,7 @@ INTERSECT
     SELECT DISTINCT p.Pname
     FROM Products AS p
     WHERE EXISTS(
-                                                        (
+                                                            (
                 SELECT *
         FROM aii
     EXCEPT

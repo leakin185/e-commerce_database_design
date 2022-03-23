@@ -176,14 +176,14 @@ Create TABLE ComplaintsOnOrders(
 	ON DELETE CASCADE
 	ON UPDATE CASCADE,
 	FOREIGN KEY(OID) REFERENCES Orders(OID),
---	ON DELETE CASCADE	//there's some multiple cascade problems causing error
+--	ON DELETE CASCADE	--there's some multiple cascade problems causing error
 --	ON UPDATE CASCADE,
-	FOREIGN KEY (filed_date_time, UserID) REFERENCES Complaints(filed_date_time, UserID)
-	ON DELETE NO ACTION
-	ON UPDATE NO ACTION,
+--	FOREIGN KEY (filed_date_time, UserID) REFERENCES Complaints(filed_date_time, UserID)	--Problem with using this
+--	ON DELETE NO ACTION
+--	ON UPDATE NO ACTION,
 
-	ComplaintID INT Not NULL,
+	ComplaintID INT NOT NULL,
 	filed_date_time DATETIME NOT NULL DEFAULT Convert(datetime, GETDATE()),
-	OID INT Not NULL,
+	OID INT NOT NULL,
 	UserID INT NOT NULL,
 );

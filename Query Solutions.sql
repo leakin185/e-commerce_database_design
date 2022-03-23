@@ -60,11 +60,18 @@ FROM (
 ----------------------------------------------------------------
 -- 4) Let us define the “latency” of an employee by the average that he/she takes to process a complaint. Find the employee with the smallest latency.
 --Find minimum averge Latency
-SELECT X.EmployeeID FROM (SELECT EmployeeID, AVG(DATEDIFF(hour, filed_date_time, handled_date_time)) AS [Latency]
-FROM Complaints AS C WHERE handled_date_time IS NOT NULL GROUP BY EmployeeID) AS X GROUP BY EmployeeID
+SELECT X.EmployeeID
+FROM (SELECT EmployeeID, AVG(DATEDIFF(hour, filed_date_time, handled_date_time)) AS [Latency]
+    FROM Complaints AS C
+    WHERE handled_date_time IS NOT NULL
+    GROUP BY EmployeeID) AS X
+GROUP BY EmployeeID
 HAVING MIN(Latency) =
-(SELECT MIN(Latency) AS MinLatency FROM (SELECT EmployeeID, AVG(DATEDIFF(hour, filed_date_time, handled_date_time)) AS [Latency]
-FROM Complaints AS C WHERE handled_date_time IS NOT NULL GROUP BY EmployeeID) AS Y)
+(SELECT MIN(Latency) AS MinLatency
+FROM (SELECT EmployeeID, AVG(DATEDIFF(hour, filed_date_time, handled_date_time)) AS [Latency]
+    FROM Complaints AS C
+    WHERE handled_date_time IS NOT NULL
+    GROUP BY EmployeeID) AS Y)
 
 ----------------------------------------------------------------
 -- 5i) Produce a list that contains (i) all products made by Samsung
@@ -115,7 +122,33 @@ FROM(
 
 ----------------------------------------------------------------
 -- 7) For users that made the most amount of complaints, find the most expensive products he/she has ever purchased.
-    
+-- return shop-product ID which uniquely identifies the product and also the user ID which made the most amount of complaints
+SELECT s2.UserID, pio1.SPID
+FROM Users s2, Orders o1, ProductInOrders pio1
+WHERE s2.UserID = o1.UserID AND
+    o1.OID = pio1.orderID AND
+    pio1.Oprice = (
+
+-- get maximum individual product price the user(s) has ordered 
+SELECT MAX(pio.Oprice)
+    FROM Users s1, Orders o, ProductInOrders pio
+    WHERE s1.UserID = o.UserID AND
+        o.OID = pio.orderID AND
+        s1.UserID IN (
+
+-- return user(s) that made the most amount of complaints (including both shop and product complaints)
+SELECT s.UserID
+        FROM Users s, Complaints c
+        WHERE s.UserID = c.UserID
+        GROUP BY s.UserID
+        HAVING COUNT(*) = (
+
+SELECT MAX(X.Count)
+        FROM(
+SELECT s.UserID, COUNT(*) AS Count
+            FROM Users s, Complaints c
+            WHERE s.UserID = c.UserID
+            GROUP BY s.UserID) AS X)));
 
 
 
@@ -139,7 +172,7 @@ FROM(
 ----> if >1, for every product, if COUNT(numoftimesitappear) >1, then it fufils a) criterias
 
 --ai) for every user, products they bought
-SELECT pis.Pname, u.UserID 
+SELECT pis.Pname, u.UserID
 FROM ProductInShops AS pis, ProductInOrders AS pio, Orders AS o, Users AS u
 WHERE pis.SPID = pio.SPID AND pio.orderID = o.OID AND o.UserID = u.userID
 GROUP BY u.UserID, pis.Pname;
@@ -158,7 +191,10 @@ GROUP BY u.UserID, pis.Pname;
 --the () subquery above should return for each user, what prooducts they nvr buy
 
 --subquery for selecting products, for each user, that they NVR buy before
-SELECT * FROM aii EXCEPT (
+SELECT *
+FROM aii
+EXCEPT
+    (
     SELECT u.UserID, pis.Pname
     FROM ProductInShops AS pis, ProductInOrders AS pio, Orders AS o, Users AS u
     WHERE pis.SPID = pio.SPID AND pio.orderID = o.OID AND o.UserID = u.userID
@@ -172,17 +208,33 @@ SELECT * FROM aii EXCEPT (
 
 --so final subquery for a) looks like:
 --only run this AFTER creating the aii view!
-SELECT DISTINCT p.Pname 
-FROM Products as p
-WHERE EXISTS (
-    SELECT * FROM aii EXCEPT (
-    SELECT u.UserID, pis.Pname
-    FROM ProductInShops AS pis, ProductInOrders AS pio, Orders AS o, Users AS u
-    WHERE pis.SPID = pio.SPID AND pio.orderID = o.OID AND o.UserID = u.userID 
-    AND p.Pname = pis.Pname --added this line here
-    GROUP BY u.UserID, pis.Pname
-    )
-)
+
+--//////////////////////IGNORE, WRONG//////////////////
+-- SELECT DISTINCT p.Pname
+-- FROM Products as p
+-- WHERE EXISTS (
+--     SELECT *
+--     FROM aii
+-- EXCEPT
+--     (
+--     SELECT u.UserID, pis.Pname
+--     FROM ProductInShops AS pis, ProductInOrders AS pio, Orders AS o, Users AS u
+--     WHERE pis.SPID = pio.SPID AND pio.orderID = o.OID AND o.UserID = u.userID
+--         AND p.Pname = pis.Pname
+--     --added this line here
+--     GROUP BY u.UserID, pis.Pname
+--     )
+-- )//////////////////////////////////////////////////////
+
+    SELECT DISTINCT p.Pname 
+    FROM (
+        SELECT * FROM aii EXCEPT (
+            SELECT u.UserID, pis.Pname
+            FROM ProductInShops AS pis, ProductInOrders AS pio, Orders AS o, Users AS u
+            WHERE pis.SPID = pio.SPID AND pio.orderID = o.OID AND o.UserID = u.userID 
+            GROUP BY u.UserID, pis.Pname)
+	) AS p
+
 --LMAO this just ends up being the entire product list again (14 products)
 
 -- Joining a) and b)
@@ -190,15 +242,171 @@ WHERE EXISTS (
 
 -- b) top 5 most purchased products by other users in August 2021
 ----> this is messy haha, 
-----> for top 5 most purchased products isit referring to top 5 num of products (so need num of orders x product per order), or top 5 num of orders containing that product haha
+---> taking absolute number,
 
 ----> top 5 would require for every user, a SELECT TOP 5 (attribute) FROM xxx GROUP BY userID ORDER BY COUNT(numofpurchases) DESC
 -----> isit group by userID or COUNT(numofpurchases) ?
 ----> and filter by date WHERE ...
 ----> but need OTHER users, so need take the above table and minus all the users from part a)
 
-SELECT TOP 5 pis.Pname 
-FROM ProductInShops AS pis, ProductInOrders AS pio, Orders AS o, Users AS u
+--bi) select top 5 products for each user
+--had to outsource to stackoverflow for this one, this is tricky
+--https://stackoverflow.com/questions/176964/select-top-10-records-for-each-category
 
+SELECT r.UserID, r.Pname
+FROM
+    (
+    --everything in this subquery returns for every user, the products they bought *sorted by COUNT(products they bought across all orders)
+    --used a view to link all users with all products they bought
+	SELECT *,
+        ROW_NUMBER() OVER(PARTITION BY r.UserID
+					  ORDER BY (
+							SELECT COUNT(r.Pname) AS numofproducts
+							FROM q8b as r)
+					  DESC) rownum
+    FROM q8b AS r --q8b is a view
+) r
+WHERE r.rownum <= 5
+ORDER BY r.UserID ASC
+
+--bii) filter by date 
+--alr done in creation of q8b view
+
+--biii) remove users that have appeared in a)
+----> by doing a) (but without the product projection/filtering) EXCEPT (query above)
+
+-- FINAL QUERY b), filter only pname column
+SELECT DISTINCT p.Pname
+FROM Products AS p
+WHERE EXISTS(
+    (
+    SELECT *
+    FROM aii
+EXCEPT
+    (
+    SELECT u.UserID, pis.Pname
+    FROM ProductInShops AS pis, ProductInOrders AS pio, Orders AS o, Users AS u
+    WHERE pis.SPID = pio.SPID AND pio.orderID = o.OID AND o.UserID = u.userID
+    GROUP BY u.UserID, pis.Pname
+        )
+)
+EXCEPT
+    (
+    SELECT r.UserID, r.Pname
+    FROM
+        (
+            --everything in this subquery returns for every user, the products they bought *sorted by COUNT(products they bought across all orders)
+            --used a view to link all users with all products they bought
+            SELECT *,
+            ROW_NUMBER() OVER(PARTITION BY r.UserID
+                            ORDER BY (
+                                    SELECT COUNT(r.Pname) AS numofproducts
+                                    FROM q8b as r)
+                            DESC) rownum
+        FROM q8b AS r --q8b is a view
+        ) r
+    WHERE r.rownum <= 5
+    )
+)
+
+--Now, do a) INTERSECT b)
+
+-----------------------------------------FINAL Q8 QUERY (finally)--------------------------
+--a)
+    (
+    SELECT DISTINCT p.Pname 
+    FROM (
+        SELECT * FROM aii EXCEPT (
+            SELECT u.UserID, pis.Pname
+            FROM ProductInShops AS pis, ProductInOrders AS pio, Orders AS o, Users AS u
+            WHERE pis.SPID = pio.SPID AND pio.orderID = o.OID AND o.UserID = u.userID 
+            GROUP BY u.UserID, pis.Pname)
+	) AS p
+)
+INTERSECT
+
+    --b)
+    (
+    SELECT DISTINCT p.Pname
+    FROM Products AS p
+    WHERE EXISTS(
+                                                                    (
+                SELECT *
+        FROM aii
+    EXCEPT
+        (
+        SELECT u.UserID, pis.Pname
+        FROM ProductInShops AS pis, ProductInOrders AS pio, Orders AS o, Users AS u
+        WHERE pis.SPID = pio.SPID AND pio.orderID = o.OID AND o.UserID = u.userID
+        GROUP BY u.UserID, pis.Pname
+            )
+    )
+    EXCEPT
+        (
+        SELECT r.UserID, r.Pname
+        FROM
+            (
+                --everything in this subquery returns for every user, the products they bought *sorted by COUNT(products they bought across all orders)
+                --used a view to link all users with all products they bought
+                SELECT *,
+                ROW_NUMBER() OVER(PARTITION BY r.UserID
+                                ORDER BY (
+                                        SELECT COUNT(r.Pname) AS numofproducts
+                                        FROM q8b as r)
+                                DESC) rownum
+            FROM q8b AS r --q8b is a view
+            ) r
+        WHERE r.rownum <= 5
+        )
+    )
+)
+
+--it returns all products!! ?? !! 
+--lmao
 ----------------------------------------------------------------
 -- 9) Find products that are increasingly being purchased over at least 3 months
+--- i. Aggregate total monthly purchases for different SPIDs as PurchaseByMonth Table 
+SELECT SPID, MONTH(deliverDate) as PurchaseMonth,
+            YEAR(deliverDate) as PurchaseYear, SUM(Oquantity) as totalQuantityPurchased
+INTO PurchaseByMonth
+FROM ProductInOrders
+GROUP BY SPID, MONTH(deliverDate),YEAR(deliverDate)
+
+--- ii. Get SPIDs of products that have sold increasingly for minimally 3 consecutive months
+WITH PurchaseRow AS (SELECT SPID, totalQuantityPurchased, PurchaseMonth,
+                         ROW_NUMBER() OVER(PARTITION BY SPID 
+                                           ORDER BY PurchaseMonth) rn
+                  FROM PurchaseByMonth),
+
+     PurchaseGroup AS (SELECT Base.SPID, Base.PurchaseMonth, 
+                         MAX(Restart.rn) OVER(PARTITION BY Base.SPID
+                                              ORDER BY Base.PurchaseMonth) groupingId
+                  FROM PurchaseRow Base
+                  LEFT JOIN PurchaseRow Restart
+                         ON Restart.SPID = Base.SPID
+                            AND Restart.rn = Base.rn - 1
+                            AND Restart.totalQuantityPurchased > Base.totalQuantityPurchased)
+
+SELECT SPID, 
+       COUNT(*) AS consecutiveCount, 
+       MIN(PurchaseMonth) AS startMonth, MAX(PurchaseMonth) AS endMonth
+INTO QueryNineProducts
+FROM PurchaseGroup
+GROUP BY SPID, groupingId
+HAVING COUNT(*) >= 3
+ORDER BY SPID, startMonth
+
+--- iii. Get corresponding product details from ProductInShops table
+SELECT p.* 
+FROM ProductInShops as p, QueryNineProducts as q
+WHERE p.SPID = q.SPID
+
+----------------------------------------------------------------------------
+--- Get SPIDs with minimally 3 months records (Not needed but keep in case?)
+SELECT c.SPID, c.PurchaseMonth, c.PurchaseYear, c.totalQuantityPurchased 
+INTO PurchaseByMonthForThreeOrMore
+FROM (SELECT a.SPID, COUNT(*) as cnt
+FROM PurchaseByMonth as a
+GROUP BY a.SPID
+HAVING COUNT(*) > 2) as b, PurchaseByMonth as c
+WHERE c.SPID = b.SPID

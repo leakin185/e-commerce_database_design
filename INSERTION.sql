@@ -847,3 +847,52 @@ INSERT INTO Feedback(UserID, OPID, rating, date_time, comment) VALUES
 (58,17812,5,'2021-08-21','very good'),
 (59,17912,5,'2021-08-22','very good'),
 (60,18012,5,'2021-08-23','very good');
+
+--Complaints
+INSERT INTO Complaints(text, filed_date_time, status, EmployeeID, UserID, handled_date_time) VALUES
+('Order came late','2021-09-19 11:23:50 AM', 'Addressed', 1 ,1 ,'2021-10-19 12:28:50 AM'),
+('Products damaged on arrivial','2021-08-07 07:00', 'Pending', NULL ,2 , NULL),
+('Missing Products','2021-08-30 13:24:28', 'Addressed', 3 ,3 ,'2021-08-31 14:00:25'),
+('I want a refund','2021-08-30 10:22:50', 'Addressed', 3 ,4 ,'2021-09-02 14:22:50'),
+('Packinging Damage','2021-07-17 15:23:40', 'Being Handled', 4 ,1 , NULL), 
+('Diageo is not good','2021-06-29 18:56:25', 'Addressed', 6 ,1 ,'2021-07-02 13:05:54'), 
+('Epitex needs improvement','2021-06-03 09:24:43', 'Being Handled', 7 ,2 , NULL), 
+('Tinec too expensive','2021-04-21 17:43:12', 'Pending', NULL ,3 ,NULL), 
+('Nintendo overrated','2021-08-08 10:21:25', 'Addressed', 9 ,4 ,'2021-08-09 10:21:25'), 
+('Dibea needs better customer service','2021-10-08 13:24:25', 'Being Handled', 9 ,5 ,NULL),
+('Order came late','2021-04-12 12:00:25', 'Addressed', 9 ,5 ,'2021-04-12 18:00:25'), 
+('Products damaged on arrivial','2021-04-13 07:00:45', 'Pending', NULL ,6 , NULL), 
+('Missing Products','2021-04-14 11:23:43', 'Addressed', 3 ,7 ,'2021-04-17 11:23:43'), 
+('I want a refund','2021-04-16 15:23:34', 'Addressed', 6 ,8 ,'2021-04-19 15:23:34'), 
+('Packinging Damage','2021-04-21 19:56:34', 'Being Handled', 4 ,9 , NULL), 
+('Diageo is not good','2021-12-12 08:23:12 ', 'Addressed', 9 ,1 ,'2021-12-13 08:23:12 '), 
+('Epitex needs improvement','2021-09-23 10:24:23', 'Being Handled', 3 ,1 , NULL), 
+('Tinec too expensive','2021-04-22 17:23:22', 'Pending', NULL ,1 , NULL), 
+('Nintendo overrated','2021-08-09 19:23:12', 'Addressed', 9 ,1 ,'2021-08-10 20:23:12'), 
+('Dibea needs better customer service','2021-06-12 23:12:23', 'Being Handled', 3 ,1 , NULL);
+
+--Complaints ON SHOPS
+INSERT INTO ComplaintsOnShops(ComplaintID, ShopName, filed_date_time, UserID) VALUES
+(6,'Diageo' ,'2021-06-29 18:56:25', 1),
+(7,'Epitex' ,'2021-06-03 09:24:43', 2),
+(8,'Tinec' ,'2021-04-21 17:43:12', 3),
+(9,'Nintendo' ,'2021-08-08 10:21:25', 4),
+(10,'Dibea' ,'2021-10-08 13:24:25', 5),
+(16,'Diageo' ,'2021-12-12 08:23:12 ', 1),
+(17,'Epitex' ,'2021-09-23 10:24:23', 1),
+(18,'Tinec' ,'2021-04-22 17:23:22', 1),
+(19,'Nintendo' ,'2021-08-09 19:23:12', 1),
+(20,'Dibea' ,'2021-06-12 23:12:23', 1);
+
+--Complaints ON ORDERS
+INSERT INTO ComplaintsOnOrders(ComplaintID, OID, filed_date_time, UserID) VALUES
+(1, 1 ,'2021-09-19 11:23:50', 1),
+(2, 2 ,'2021-08-07 07:00:23', 2),
+(3, 3 ,'2021-08-30 13:24:28', 3),
+(4, 4 ,'2021-08-30 10:22:50', 4),
+(5, 5 ,'2021-07-17 15:23:40', 1),
+(11, 11 ,'2021-04-12 12:00:25', 5),
+(12, 12 ,'2021-04-13 07:00:45', 6),
+(13, 13 ,'2021-04-14 11:23:43', 7),
+(14, 14 ,'2021-04-16 15:23:34', 8),
+(15, 15 ,'2021-04-21 19:56:34', 9);

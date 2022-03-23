@@ -127,3 +127,64 @@ CREATE TABLE Feedback (
     date_time DATE NOT NULL,
     comment varchar(255) NOT NULL,
 );
+
+--Complaints
+Create TABLE Complaints(
+	Primary KEY (ComplaintID),
+	UNIQUE(filed_date_time, UserID),
+	FOREIGN KEY(EmployeeID) REFERENCES Employees(ID)
+    ON  DELETE CASCADE
+	ON UPDATE CASCADE,
+	FOREIGN KEY(UserID) REFERENCES Users(UserID)
+    ON  DELETE CASCADE
+	ON UPDATE CASCADE,
+
+	ComplaintID INT Not NULL Identity(1,1),
+	text varchar (255) NOT NULL,
+	filed_date_time DATETIME NOT NULL DEFAULT Convert(datetime, GETDATE()),
+	status varchar(225) NOT NULL,
+	EmployeeID INT,
+	UserID INT NOT NULL,
+    handled_date_time DATETIME DEFAULT Convert(datetime, GETDATE()),
+	CHECK (handled_date_time > filed_date_time)
+);
+
+--Complaints ON SHOPS
+Create TABLE ComplaintsOnShops(
+	Primary KEY (ComplaintID),
+	UNIQUE(filed_date_time, UserID),
+	FOREIGN KEY(ComplaintID) REFERENCES Complaints(ComplaintID)
+	ON DELETE CASCADE
+	ON UPDATE CASCADE,
+	FOREIGN KEY(ShopName) REFERENCES Shops(name)
+	ON DELETE CASCADE
+	ON UPDATE CASCADE,
+	FOREIGN KEY (filed_date_time, UserID) REFERENCES Complaints(filed_date_time, UserID)
+	ON DELETE NO ACTION
+	ON UPDATE NO ACTION,
+
+	ComplaintID INT Not NULL,
+	filed_date_time DATETIME NOT NULL DEFAULT Convert(datetime, GETDATE()),
+	ShopName varchar(255) Not NULL,
+	UserID INT NOT NULL,
+);
+
+--Complaints ON ORDERS
+Create TABLE ComplaintsOnOrders(
+	Primary KEY (ComplaintID),
+	UNIQUE(filed_date_time, UserID),
+	FOREIGN KEY(ComplaintID) REFERENCES Complaints(ComplaintID)
+	ON DELETE CASCADE
+	ON UPDATE CASCADE,
+	FOREIGN KEY(OID) REFERENCES Orders(OID),
+--	ON DELETE CASCADE	--there's some multiple cascade problems causing error
+--	ON UPDATE CASCADE,
+--	FOREIGN KEY (filed_date_time, UserID) REFERENCES Complaints(filed_date_time, UserID)	--Problem with using this
+--	ON DELETE NO ACTION
+--	ON UPDATE NO ACTION,
+
+	ComplaintID INT NOT NULL,
+	filed_date_time DATETIME NOT NULL DEFAULT Convert(datetime, GETDATE()),
+	OID INT NOT NULL,
+	UserID INT NOT NULL,
+);

@@ -193,17 +193,14 @@ WHERE EXISTS (
 ----> taking absolute number,
 
 ----> top 5 would require for every user, a SELECT TOP 5 (attribute) FROM xxx GROUP BY userID ORDER BY COUNT(numofpurchases) DESC
------> isit group by userID or COUNT(numofpurchases) ?
 ----> and filter by date WHERE ...
 ----> but need OTHER users, so need take the above table and minus all the users from part a)
-
-
 
 --bi) select top 5 products for each user
 --had to outsource to stackoverflow for this one, this is tricky
 --https://stackoverflow.com/questions/176964/select-top-10-records-for-each-category
 
-SELECT r.*
+SELECT r.UserID, r.Pname
 FROM
 (
     --everything in this subquery returns for every user, the products they bought *sorted by COUNT(products they bought across all orders)
@@ -223,6 +220,92 @@ ORDER BY r.UserID ASC
 --alr done in creation of q8b view
 
 --biii) remove users that have appeared in a)
+----> by doing a) (but without the product projection/filtering) EXCEPT (query above)
 
+-- FINAL QUERY b), filter only pname column
+SELECT DISTINCT p.Pname
+FROM Products AS p
+WHERE EXISTS(
+    (
+        SELECT * FROM aii EXCEPT (
+        SELECT u.UserID, pis.Pname
+        FROM ProductInShops AS pis, ProductInOrders AS pio, Orders AS o, Users AS u
+        WHERE pis.SPID = pio.SPID AND pio.orderID = o.OID AND o.UserID = u.userID 
+        GROUP BY u.UserID, pis.Pname
+        )
+    )
+    EXCEPT
+    (
+        SELECT r.UserID, r.Pname
+        FROM
+        (
+            --everything in this subquery returns for every user, the products they bought *sorted by COUNT(products they bought across all orders)
+            --used a view to link all users with all products they bought
+            SELECT *,
+            ROW_NUMBER() OVER(PARTITION BY r.UserID
+                            ORDER BY (
+                                    SELECT COUNT(r.Pname) AS numofproducts
+                                    FROM q8b as r)
+                            DESC) rownum
+            FROM q8b AS r --q8b is a view
+        ) r
+        WHERE r.rownum <= 5
+    )
+)
+
+--Now, do a) INTERSECT b)
+
+-----------------------------------------FINAL Q8 QUERY (finally)--------------------------
+--a)
+(
+    SELECT DISTINCT p.Pname 
+    FROM Products as p
+    WHERE EXISTS (
+        SELECT * FROM aii EXCEPT (
+        SELECT u.UserID, pis.Pname
+        FROM ProductInShops AS pis, ProductInOrders AS pio, Orders AS o, Users AS u
+        WHERE pis.SPID = pio.SPID AND pio.orderID = o.OID AND o.UserID = u.userID 
+        AND p.Pname = pis.Pname --added this line here
+        GROUP BY u.UserID, pis.Pname
+        )
+    )
+)
+INTERSECT
+
+--b)
+(
+    SELECT DISTINCT p.Pname
+    FROM Products AS p
+    WHERE EXISTS(
+        (
+            SELECT * FROM aii EXCEPT (
+            SELECT u.UserID, pis.Pname
+            FROM ProductInShops AS pis, ProductInOrders AS pio, Orders AS o, Users AS u
+            WHERE pis.SPID = pio.SPID AND pio.orderID = o.OID AND o.UserID = u.userID 
+            GROUP BY u.UserID, pis.Pname
+            )
+        )
+        EXCEPT
+        (
+            SELECT r.UserID, r.Pname
+            FROM
+            (
+                --everything in this subquery returns for every user, the products they bought *sorted by COUNT(products they bought across all orders)
+                --used a view to link all users with all products they bought
+                SELECT *,
+                ROW_NUMBER() OVER(PARTITION BY r.UserID
+                                ORDER BY (
+                                        SELECT COUNT(r.Pname) AS numofproducts
+                                        FROM q8b as r)
+                                DESC) rownum
+                FROM q8b AS r --q8b is a view
+            ) r
+            WHERE r.rownum <= 5
+        )
+    )
+)
+
+--it returns all products!! ?? !! 
+--lmao
 ----------------------------------------------------------------
 -- 9) Find products that are increasingly being purchased over at least 3 months

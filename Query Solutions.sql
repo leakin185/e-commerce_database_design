@@ -121,6 +121,7 @@ FROM(
 
 -- Justification/Logic:
 ---->Can split this into 2 parts, according to above paragraphing
+---->Also included some intermediate tables in the excel under q8 ans checking sheet
 
 --  Part a) Products never purchased by some users 
 ----> ai) for every user, can have a list of the products they bought, 
@@ -176,16 +177,22 @@ WHERE EXISTS (
     GROUP BY u.UserID, pis.Pname
     )
 )
+--LMAO this just ends up being the entire product list again (14 products)
 
 -- Joining a) and b)
 ---> Use INTERSECT, although its "but", logically seems more like "and"
 
 -- b) top 5 most purchased products by other users in August 2021
 ----> this is messy haha, 
-----> top 5 would require for every user, a SELECT TOP 5 (attribute) FROM xxx GROUP BY COUNT(numofpurchases) ORDER BY COUNT(numofpurchases) DESC
+----> for top 5 most purchased products isit referring to top 5 num of products (so need num of orders x product per order), or top 5 num of orders containing that product haha
+
+----> top 5 would require for every user, a SELECT TOP 5 (attribute) FROM xxx GROUP BY userID ORDER BY COUNT(numofpurchases) DESC
+-----> isit group by userID or COUNT(numofpurchases) ?
 ----> and filter by date WHERE ...
 ----> but need OTHER users, so need take the above table and minus all the users from part a)
-SELECT 
+
+SELECT TOP 5 pis.Pname 
+FROM ProductInShops AS pis, ProductInOrders AS pio, Orders AS o, Users AS u
 
 ----------------------------------------------------------------
 -- 9) Find products that are increasingly being purchased over at least 3 months

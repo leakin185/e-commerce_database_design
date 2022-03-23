@@ -401,6 +401,25 @@ INSERT INTO Orders(OID, date_time, shipping_address, UserID) VALUES
 (178,'2021-08-11','21 Defu Lane 10 01-308', 58), 
 (179,'2021-08-12','28 Bayshore Road, 06-08', 59), 
 (180,'2021-08-13','58, Amoy St', 60);
+(181,'2021-08-15','5070 Ang Mo Kio Industrial Park 2 #01-1415', 61), 
+(182,'2021-07-28','Blk 46B Toh Tuck Road ,03-11', 62), 
+(183,'2021-08-09','1817 Geylang Bahru 01-02', 63), 
+(184,'2021-08-13','1093 Lower Delta Road 01-05', 64), 
+(185,'2021-08-06','182 Paya Lebar Road ,10-02 Yiguang Building', 65), 
+(186,'2021-07-25','24 Malacca Street 14-02 Royal Brothers Building', 66), 
+(187,'2021-08-01','173 Tras Street 08-173 Union Building', 67), 
+(188,'2021-08-04','UOB - Junction 8 Shopping Centre, 9 Bishan Place,', 68), 
+(189,'2021-08-07','8 Napier Road #09-15 Gleneagles Medical Centre', 69), 
+(190,'2021-08-10','11 Joo Koon Road', 70), 
+(191,'2021-08-12','HDB Bedok 528 Bedok North Street 3 #16-530', 71), 
+(192,'2021-07-28','513 Guillemard Road #02-12 Grandlink Square', 72), 
+(193,'2021-08-01','Frankel Estate 685A East Coast Road', 73), 
+(194,'2021-08-02','22 Havelock Rd #01-06', 74), 
+(195,'2021-08-17','19 Hillview Avenue #01-1306', 75), 
+(196,'2021-08-21','37 Jalan Pemimpin #06-02 WEDGE MOUNT INDUSTRIAL BUILDING', 76), 
+(197,'2021-08-15','BLK 164 BT MERAH CENTRAL', 77), 
+(198,'2021-08-05','728, Ang Mo Kio Ave 6, #01-4216', 78), 
+(199,'2021-08-13','33 Shipyard Road', 79);
 
 -- ProductInOrders
 INSERT INTO ProductInOrders(OPID, Oprice, Oquantity, orderStatus, deliverDate, orderID, SPID) VALUES
@@ -864,7 +883,26 @@ INSERT INTO Feedback(UserID, OPID, rating, date_time, comment) VALUES
 (57,17712,5,'2021-08-19','very good'),
 (58,17812,5,'2021-08-21','very good'),
 (59,17912,5,'2021-08-22','very good'),
-(60,18012,5,'2021-08-23','very good');
+(60,18012,5,'2021-08-23','very good'),
+(61,18112,5,'2021-08-25','very good'),
+(62,18212,5,'2021-08-07','very good'),
+(63,18312,5,'2021-08-19','very good'),
+(64,18412,5,'2021-08-23','very good'),
+(65,18512,5,'2021-08-16','very good'),
+(66,18612,5,'2021-08-04','very good'),
+(67,18712,5,'2021-08-11','very good'),
+(68,18812,5,'2021-08-14','very good'),
+(69,18912,5,'2021-08-17','very good'),
+(70,19012,5,'2021-08-20','very good'),
+(71,19112,5,'2021-08-22','very good'),
+(72,19212,5,'2021-08-07','very good'),
+(73,19312,5,'2021-08-11','very good'),
+(74,19412,5,'2021-08-12','very good'),
+(75,19512,5,'2021-08-27','very good'),
+(76,19612,5,'2021-08-31','very good'),
+(77,19712,5,'2021-08-25','very good'),
+(78,19812,5,'2021-08-15','very good'),
+(79,19912,5,'2021-08-23','very good');
 
 --Complaints
 INSERT INTO Complaints(text, filed_date_time, status, EmployeeID, UserID, handled_date_time) VALUES

@@ -224,6 +224,5 @@ ORDER BY r.UserID ASC
 
 --biii) remove users that have appeared in a)
 
-
 ----------------------------------------------------------------
 -- 9) Find products that are increasingly being purchased over at least 3 months

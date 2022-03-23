@@ -131,11 +131,11 @@ FROM(
 ----> if >=1, for every product, as long as there it exists in the list above, it fufils the criteria for a)
 ----> if >1, for every product, if COUNT(numoftimesitappear) >1, then it fufils a) criterias
 
---ai)
-SELECT pis.Pname, u,UserID 
-FROM ProductInShop AS pis, ProductInOrder AS pio, Orders AS o, Users AS u
-WHERE pis.SPID = pio.SPID AND pio.orderID = o.orderid AND o.UserID = u.userID
-GROUP BY u.UserID;
+--ai) for every user, products they bought
+SELECT pis.Pname, u.UserID 
+FROM ProductInShops AS pis, ProductInOrders AS pio, Orders AS o, Users AS u
+WHERE pis.SPID = pio.SPID AND pio.orderID = o.OID AND o.UserID = u.userID
+GROUP BY u.UserID, pis.Pname;
 
 -- aii) need to create global set of all products, for each user --> try create view? create view need its own file so yea refer to VIEWS.sql
 --CREATE VIEW aii AS SELECT * 
@@ -150,19 +150,32 @@ GROUP BY u.UserID;
 
 --the () subquery above should return for each user, what prooducts they nvr buy
 
+--subquery for selecting products, for each user, that they NVR buy before
+SELECT * FROM aii EXCEPT (
+    SELECT u.UserID, pis.Pname
+    FROM ProductInShops AS pis, ProductInOrders AS pio, Orders AS o, Users AS u
+    WHERE pis.SPID = pio.SPID AND pio.orderID = o.OID AND o.UserID = u.userID
+    GROUP BY u.UserID, pis.Pname
+    );
 
---so final subquery for a looks like:
+
+--so now need to get aggregate/remove duplicates from this list?
+--like not bought by at least one user
+--so select from above subquery as long as pname exists?
+
+--so final subquery for a) looks like:
 --only run this AFTER creating the aii view!
-SELECT DISTINCT p.Pname, u.UserID
-FROM product as p, Users as u
-WHERE p.Pname IN (
+SELECT DISTINCT p.Pname 
+FROM Products as p
+WHERE EXISTS (
     SELECT * FROM aii EXCEPT (
-        SELECT pis.Pname, u,UserID 
-        FROM ProductInShop AS pis, ProductInOrder AS pio, Orders AS o, Users AS u
-        WHERE pis.SPID = pio.SPID AND pio.orderID = o.orderid AND o.UserID = u.userID
-        GROUP BY u.UserID)
-        );
-
+    SELECT u.UserID, pis.Pname
+    FROM ProductInShops AS pis, ProductInOrders AS pio, Orders AS o, Users AS u
+    WHERE pis.SPID = pio.SPID AND pio.orderID = o.OID AND o.UserID = u.userID 
+    AND p.Pname = pis.Pname --added this line here
+    GROUP BY u.UserID, pis.Pname
+    )
+)
 
 -- Joining a) and b)
 ---> Use INTERSECT, although its "but", logically seems more like "and"

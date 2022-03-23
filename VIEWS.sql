@@ -1,4 +1,3 @@
-
 --for queries Q8aii
 CREATE VIEW aii AS 
 SELECT u.UserID, p.Pname

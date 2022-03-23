@@ -242,10 +242,9 @@ EXCEPT
 
 -- b) top 5 most purchased products by other users in August 2021
 ----> this is messy haha, 
----> taking absolute number,
+----> taking absolute number,
 
 ----> top 5 would require for every user, a SELECT TOP 5 (attribute) FROM xxx GROUP BY userID ORDER BY COUNT(numofpurchases) DESC
------> isit group by userID or COUNT(numofpurchases) ?
 ----> and filter by date WHERE ...
 ----> but need OTHER users, so need take the above table and minus all the users from part a)
 

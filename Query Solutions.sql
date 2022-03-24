@@ -395,7 +395,7 @@ SELECT pName, MONTH(deliverDate) as PurchaseMonth,
 INTO PurchaseByMonth
 FROM (SELECT pName, q.SPID, Oquantity, deliverDate 
 FROM  ProductInOrders as p, ProductInShops as q
-WHERE p.SPID = q.SPID) as p
+WHERE p.SPID = q.SPID) as r
 GROUP BY pName, MONTH(deliverDate),YEAR(deliverDate);
 
 --- ii. Get products by product name that have sold increasingly for minimally 3 consecutive months
@@ -422,7 +422,7 @@ GROUP BY PName, groupingId
 HAVING COUNT(*) >= 3
 ORDER BY PName, startMonth;
 
---- iii. Get corresponding product details from ProductInShops table
+--- iii. Retrieve corresponding product names 
 SELECT pName 
 FROM QueryNineProducts;
 

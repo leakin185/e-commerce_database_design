@@ -365,7 +365,6 @@ INTERSECT
 --lmao
 ----------------------------------------------------------------
 -- 9) Find products that are increasingly being purchased over at least 3 months
--- TODO: Organise into one single query or make it run smoothly
 --- i. Aggregate total monthly purchases by products as PurchaseByMonth Table 
 SELECT pName, MONTH(deliverDate) as PurchaseMonth,
             YEAR(deliverDate) as PurchaseYear, SUM(Oquantity) as totalQuantityPurchased
@@ -373,7 +372,7 @@ INTO PurchaseByMonth
 FROM (SELECT pName, q.SPID, Oquantity, deliverDate 
 FROM  ProductInOrders as p, ProductInShops as q
 WHERE p.SPID = q.SPID) as p
-GROUP BY pName, MONTH(deliverDate),YEAR(deliverDate)
+GROUP BY pName, MONTH(deliverDate),YEAR(deliverDate);
 
 --- ii. Get products by product name that have sold increasingly for minimally 3 consecutive months
 WITH PurchaseRow AS (SELECT PName, totalQuantityPurchased, PurchaseMonth,
@@ -397,11 +396,11 @@ INTO QueryNineProducts
 FROM PurchaseGroup
 GROUP BY PName, groupingId
 HAVING COUNT(*) >= 3
-ORDER BY PName, startMonth
+ORDER BY PName, startMonth;
 
 --- iii. Get corresponding product details from ProductInShops table
 SELECT pName 
-FROM QueryNineProducts
+FROM QueryNineProducts;
 
 ----------------------------------------------------------------------------
 --- Get SPIDs with minimally 3 months records (Not needed but keep in case?)

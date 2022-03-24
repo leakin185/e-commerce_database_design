@@ -77,17 +77,20 @@ GROUP BY EmployeeID
 -- 5i) Produce a list that contains (i) all products made by Samsung
 SELECT p.Pname
 FROM Products p
-WHERE p.Maker = 'samsung.sg'
+WHERE p.Maker LIKE '%samsung%' OR p.Maker LIKE '%Samsung%'
 
 -- 5ii)for each of them, the number of shops on Shiokee that sell the product. 
-SELECT p.Pname, COUNT(pis.Sname) AS numShops
-FROM ProductInShops pis, Products p
+SELECT pis.Pname, COUNT(pis.Sname) AS numShops
+FROM ProductInShops pis
 WHERE
--- Join tables by Pname
-    pis.Pname = p.Pname AND
-    p.maker = 'samsung.sg' AND
-    pis.remarks = 'Selling'
-GROUP BY p.Pname
+--  Use 5i answer
+pis.remarks = 'Selling' AND 
+   pis.Pname IN (
+    SELECT p.Pname
+	FROM Products p
+	WHERE p.Maker LIKE '%samsung%' OR p.Maker LIKE '%Samsung%')
+
+GROUP BY pis.Pname
 
 ----------------------------------------------------------------
 -- 6) Find shops that made the most revenue in August 2021.

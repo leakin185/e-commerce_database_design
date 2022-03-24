@@ -179,7 +179,7 @@ Create TABLE ComplaintsOnOrders(
 	FOREIGN KEY(OID) REFERENCES Orders(OID),
 --	ON DELETE CASCADE	--there's some multiple cascade problems causing error
 --	ON UPDATE CASCADE,
---	FOREIGN KEY (filed_date_time, UserID) REFERENCES Complaints(filed_date_time, UserID)	--Problem with using this
+--  FOREIGN KEY (filed_date_time, UserID) REFERENCES Complaints(filed_date_time, UserID),	--Problem with using this
 --	ON DELETE NO ACTION
 --	ON UPDATE NO ACTION,
 

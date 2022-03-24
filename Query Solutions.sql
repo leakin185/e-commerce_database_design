@@ -10,7 +10,7 @@ WHERE
 (ph.endDate <= '2021-08-31' AND ph.endDate >= '2021-08-01') OR
     -- Product price started before end of Aug 2021 and persists till after Aug 
     (ph.endDate > '2021-08-31' AND ph.startDate <= '2021-08-31')
-    AND ph.Pname = 'Apple iPhone Xs 2022'
+    AND ph.Pname LIKE '%iPhone Xs%'
 GROUP BY ph.Pname;
 
 ----------------------------------------------------------------
@@ -59,19 +59,19 @@ FROM (
 
 ----------------------------------------------------------------
 -- 4) Let us define the “latency” of an employee by the average that he/she takes to process a complaint. Find the employee with the smallest latency.
---Find minimum averge Latency
+--Find minimum average Latency
 SELECT X.EmployeeID
 FROM (SELECT EmployeeID, AVG(DATEDIFF(hour, filed_date_time, handled_date_time)) AS [Latency]
     FROM Complaints AS C
     WHERE handled_date_time IS NOT NULL
     GROUP BY EmployeeID) AS X
-GROUP BY EmployeeID
-HAVING MIN(Latency) =
+WHERE Latency =
 (SELECT MIN(Latency) AS MinLatency
 FROM (SELECT EmployeeID, AVG(DATEDIFF(hour, filed_date_time, handled_date_time)) AS [Latency]
     FROM Complaints AS C
     WHERE handled_date_time IS NOT NULL
     GROUP BY EmployeeID) AS Y)
+GROUP BY EmployeeID
 
 ----------------------------------------------------------------
 -- 5i) Produce a list that contains (i) all products made by Samsung
@@ -127,10 +127,11 @@ SELECT s2.UserID, pio1.SPID
 FROM Users s2, Orders o1, ProductInOrders pio1
 WHERE s2.UserID = o1.UserID AND
     o1.OID = pio1.orderID AND
-    pio1.Oprice = (
+    pio1.Oprice/pio1.Oquantity = ( 
+    -- check this part again 
 
 -- get maximum individual product price the user(s) has ordered 
-SELECT MAX(pio.Oprice)
+SELECT MAX(pio.Oprice/pio.Oquantity)
     FROM Users s1, Orders o, ProductInOrders pio
     WHERE s1.UserID = o.UserID AND
         o.OID = pio.orderID AND

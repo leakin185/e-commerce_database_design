@@ -365,41 +365,43 @@ INTERSECT
 --lmao
 ----------------------------------------------------------------
 -- 9) Find products that are increasingly being purchased over at least 3 months
---- i. Aggregate total monthly purchases for different SPIDs as PurchaseByMonth Table 
-SELECT SPID, MONTH(deliverDate) as PurchaseMonth,
+-- TODO: Organise into one single query or make it run smoothly
+--- i. Aggregate total monthly purchases by products as PurchaseByMonth Table 
+SELECT pName, MONTH(deliverDate) as PurchaseMonth,
             YEAR(deliverDate) as PurchaseYear, SUM(Oquantity) as totalQuantityPurchased
 INTO PurchaseByMonth
-FROM ProductInOrders
-GROUP BY SPID, MONTH(deliverDate),YEAR(deliverDate)
+FROM (SELECT pName, q.SPID, Oquantity, deliverDate 
+FROM  ProductInOrders as p, ProductInShops as q
+WHERE p.SPID = q.SPID) as p
+GROUP BY pName, MONTH(deliverDate),YEAR(deliverDate)
 
---- ii. Get SPIDs of products that have sold increasingly for minimally 3 consecutive months
-WITH PurchaseRow AS (SELECT SPID, totalQuantityPurchased, PurchaseMonth,
-                         ROW_NUMBER() OVER(PARTITION BY SPID 
+--- ii. Get products by product name that have sold increasingly for minimally 3 consecutive months
+WITH PurchaseRow AS (SELECT PName, totalQuantityPurchased, PurchaseMonth,
+                         ROW_NUMBER() OVER(PARTITION BY PName 
                                            ORDER BY PurchaseMonth) rn
                   FROM PurchaseByMonth),
 
-     PurchaseGroup AS (SELECT Base.SPID, Base.PurchaseMonth, 
-                         MAX(Restart.rn) OVER(PARTITION BY Base.SPID
+     PurchaseGroup AS (SELECT Base.PName, Base.PurchaseMonth, 
+                         MAX(Restart.rn) OVER(PARTITION BY Base.PName
                                               ORDER BY Base.PurchaseMonth) groupingId
                   FROM PurchaseRow Base
                   LEFT JOIN PurchaseRow Restart
-                         ON Restart.SPID = Base.SPID
+                         ON Restart.PName = Base.PName
                             AND Restart.rn = Base.rn - 1
                             AND Restart.totalQuantityPurchased > Base.totalQuantityPurchased)
 
-SELECT SPID, 
+SELECT PName, 
        COUNT(*) AS consecutiveCount, 
        MIN(PurchaseMonth) AS startMonth, MAX(PurchaseMonth) AS endMonth
 INTO QueryNineProducts
 FROM PurchaseGroup
-GROUP BY SPID, groupingId
+GROUP BY PName, groupingId
 HAVING COUNT(*) >= 3
-ORDER BY SPID, startMonth
+ORDER BY PName, startMonth
 
 --- iii. Get corresponding product details from ProductInShops table
-SELECT p.* 
-FROM ProductInShops as p, QueryNineProducts as q
-WHERE p.SPID = q.SPID
+SELECT pName 
+FROM QueryNineProducts
 
 ----------------------------------------------------------------------------
 --- Get SPIDs with minimally 3 months records (Not needed but keep in case?)

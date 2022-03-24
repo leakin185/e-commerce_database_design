@@ -311,6 +311,30 @@ EXCEPT
 
 --Now, do a) INTERSECT b)
 
+
+-- find all products purchased by user in Aug that is in products not purchased, products_not_purchased is a VIEW
+SELECT o.UserID, pis.Pname, pio.Oquantity, o.date_time FROM ProductInOrders pio, Orders o, ProductInShops pis WHERE
+pis.Pname in (SELECT Pname FROM products_not_purchased) AND 
+pis.SPID = pio.SPID AND
+o.OID = pio.orderID AND 
+o.date_time <= '2021-08-31' AND
+o.date_time >= '2021-08-01'  
+order by o.UserID
+
+
+-- for each user
+SELECT result.Pname, SUM(result.Oquantity) AS numProducts FROM
+(SELECT o.UserID, pis.Pname, pio.Oquantity, o.date_time FROM ProductInOrders pio, Orders o, ProductInShops pis WHERE
+pis.Pname in (SELECT Pname FROM products_not_purchased) AND 
+pis.SPID = pio.SPID AND
+o.OID = pio.orderID AND 
+o.date_time <= '2021-08-31' AND
+o.date_time >= '2021-08-01'  
+) result
+
+group by result.Pname
+order by numProducts desc
+
 -----------------------------------------FINAL Q8 QUERY (finally)--------------------------
 --a)
     (

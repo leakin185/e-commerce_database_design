@@ -126,13 +126,13 @@ FROM(
 
 -- select the top row with the SPID and the price of the product with the highest price
 SELECT TOP 1
-    pio.SPID, (pio.Oprice/pio.Oquantity) as price
+    s1.UserID, pio.SPID, (pio.Oprice/pio.Oquantity) as price
 FROM Users s1, Orders o, ProductInOrders pio
 WHERE s1.UserID = o.UserID AND
     o.OID = pio.orderID AND
     s1.UserID IN (
 
-        -- return user(s) that made the most amount of complaints (including both shop and product complaints)
+    -- return user(s) that made the most amount of complaints (including both shop and product complaints)
     SELECT s.UserID
     FROM Users s, Complaints c
     WHERE s.UserID = c.UserID
@@ -145,8 +145,9 @@ WHERE s1.UserID = o.UserID AND
         FROM Users s, Complaints c
         WHERE s.UserID = c.UserID
         GROUP BY s.UserID) AS X))
-GROUP BY pio.SPID, (pio.Oprice/pio.Oquantity)
+GROUP BY s1.UserID, pio.SPID, (pio.Oprice/pio.Oquantity)
 ORDER BY price DESC
+-- order price of product in decreasing order
 
 
 
@@ -228,7 +229,7 @@ EXCEPT
 
 SELECT DISTINCT p.Pname
 FROM (
-                                                                                                        SELECT *
+                                                                                                                                                SELECT *
         FROM aii
     EXCEPT
         (
@@ -349,7 +350,7 @@ order by numProducts desc
     (
     SELECT DISTINCT p.Pname
     FROM (
-                                                                                                                                                        SELECT *
+                                                                                                                                                                                                                    SELECT *
             FROM aii
         EXCEPT
             (
@@ -366,7 +367,7 @@ INTERSECT
     SELECT DISTINCT p.Pname
     FROM Products AS p
     WHERE EXISTS(
-                                                                                                                    (
+                                                                                                                                        (
                 SELECT *
         FROM aii
     EXCEPT

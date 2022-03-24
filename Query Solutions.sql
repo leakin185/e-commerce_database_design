@@ -21,13 +21,13 @@ SELECT pis.Pname, f.rating, f.date_time
 INTO R
 FROM ProductInShops AS pis, ProductInOrders AS pio, Feedback AS f
 WHERE (f.OPID = pio.OPID)
-AND (pio.SPID = pis.SPID);
+    AND (pio.SPID = pis.SPID);
 
 -- Main Query
 SELECT DISTINCT Pname, AVG(rating) AS AverageRating
 FROM R
 WHERE (date_time > '2021-07-31' AND date_time <= '2021-08-31')
-AND Pname IN
+    AND Pname IN
 (
     -- Get the name of product that received at least 100 ratings of "5" in August
     SELECT DISTINCT Pname
@@ -35,8 +35,8 @@ AND Pname IN
     WHERE
     -- Filter: Feedbacks given in August 2021
     (date_time > '2021-07-31' AND date_time <= '2021-08-31')
-    -- Filter: Rating of 5
-    AND (rating = 5)
+        -- Filter: Rating of 5
+        AND (rating = 5)
     GROUP BY Pname
     -- At least 100 ratings
     HAVING COUNT(Pname) >= 100
@@ -123,33 +123,32 @@ FROM(
 ----------------------------------------------------------------
 -- 7) For users that made the most amount of complaints, find the most expensive products he/she has ever purchased.
 -- return shop-product ID which uniquely identifies the product and also the user ID which made the most amount of complaints
-SELECT s2.UserID, pio1.SPID
-FROM Users s2, Orders o1, ProductInOrders pio1
-WHERE s2.UserID = o1.UserID AND
-    o1.OID = pio1.orderID AND
-    pio1.Oprice/pio1.Oquantity = ( 
-    -- check this part again 
 
--- get maximum individual product price the user(s) has ordered 
-SELECT MAX(pio.Oprice/pio.Oquantity)
-    FROM Users s1, Orders o, ProductInOrders pio
-    WHERE s1.UserID = o.UserID AND
-        o.OID = pio.orderID AND
-        s1.UserID IN (
+-- select the top row with the SPID and the price of the product with the highest price
+SELECT TOP 1
+    pio.SPID, (pio.Oprice/pio.Oquantity) as price
+FROM Users s1, Orders o, ProductInOrders pio
+WHERE s1.UserID = o.UserID AND
+    o.OID = pio.orderID AND
+    s1.UserID IN (
 
--- return user(s) that made the most amount of complaints (including both shop and product complaints)
-SELECT s.UserID
+        -- return user(s) that made the most amount of complaints (including both shop and product complaints)
+    SELECT s.UserID
+    FROM Users s, Complaints c
+    WHERE s.UserID = c.UserID
+    GROUP BY s.UserID
+    HAVING COUNT(*) = (
+
+    SELECT MAX(X.Count)
+    FROM(
+        SELECT s.UserID, COUNT(*) AS Count
         FROM Users s, Complaints c
         WHERE s.UserID = c.UserID
-        GROUP BY s.UserID
-        HAVING COUNT(*) = (
+        GROUP BY s.UserID) AS X))
+GROUP BY pio.SPID, (pio.Oprice/pio.Oquantity)
+ORDER BY price DESC
 
-SELECT MAX(X.Count)
-        FROM(
-SELECT s.UserID, COUNT(*) AS Count
-            FROM Users s, Complaints c
-            WHERE s.UserID = c.UserID
-            GROUP BY s.UserID) AS X)));
+
 
 
 
@@ -192,8 +191,8 @@ GROUP BY u.UserID, pis.Pname;
 --the () subquery above should return for each user, what prooducts they nvr buy
 
 --subquery for selecting products, for each user, that they NVR buy before
-SELECT *
-FROM aii
+    SELECT *
+    FROM aii
 EXCEPT
     (
     SELECT u.UserID, pis.Pname
@@ -227,13 +226,16 @@ EXCEPT
 --     )
 -- )//////////////////////////////////////////////////////
 
-    SELECT DISTINCT p.Pname 
-    FROM (
-        SELECT * FROM aii EXCEPT (
-            SELECT u.UserID, pis.Pname
-            FROM ProductInShops AS pis, ProductInOrders AS pio, Orders AS o, Users AS u
-            WHERE pis.SPID = pio.SPID AND pio.orderID = o.OID AND o.UserID = u.userID 
-            GROUP BY u.UserID, pis.Pname)
+SELECT DISTINCT p.Pname
+FROM (
+                                                                                                        SELECT *
+        FROM aii
+    EXCEPT
+        (
+        SELECT u.UserID, pis.Pname
+        FROM ProductInShops AS pis, ProductInOrders AS pio, Orders AS o, Users AS u
+        WHERE pis.SPID = pio.SPID AND pio.orderID = o.OID AND o.UserID = u.userID
+        GROUP BY u.UserID, pis.Pname)
 	) AS p
 
 --LMAO this just ends up being the entire product list again (14 products)
@@ -313,23 +315,30 @@ EXCEPT
 
 
 -- find all products purchased by user in Aug that is in products not purchased, products_not_purchased is a VIEW
-SELECT o.UserID, pis.Pname, pio.Oquantity, o.date_time FROM ProductInOrders pio, Orders o, ProductInShops pis WHERE
-pis.Pname in (SELECT Pname FROM products_not_purchased) AND 
-pis.SPID = pio.SPID AND
-o.OID = pio.orderID AND 
-o.date_time <= '2021-08-31' AND
-o.date_time >= '2021-08-01'  
+SELECT o.UserID, pis.Pname, pio.Oquantity, o.date_time
+FROM ProductInOrders pio, Orders o, ProductInShops pis
+WHERE
+pis.Pname in (SELECT Pname
+    FROM products_not_purchased) AND
+    pis.SPID = pio.SPID AND
+    o.OID = pio.orderID AND
+    o.date_time <= '2021-08-31' AND
+    o.date_time >= '2021-08-01'
 order by o.UserID
 
 
 -- for each user
-SELECT result.Pname, SUM(result.Oquantity) AS numProducts FROM
-(SELECT o.UserID, pis.Pname, pio.Oquantity, o.date_time FROM ProductInOrders pio, Orders o, ProductInShops pis WHERE
-pis.Pname in (SELECT Pname FROM products_not_purchased) AND 
-pis.SPID = pio.SPID AND
-o.OID = pio.orderID AND 
-o.date_time <= '2021-08-31' AND
-o.date_time >= '2021-08-01'  
+SELECT result.Pname, SUM(result.Oquantity) AS numProducts
+FROM
+    (SELECT o.UserID, pis.Pname, pio.Oquantity, o.date_time
+    FROM ProductInOrders pio, Orders o, ProductInShops pis
+    WHERE
+pis.Pname in (SELECT Pname
+        FROM products_not_purchased) AND
+        pis.SPID = pio.SPID AND
+        o.OID = pio.orderID AND
+        o.date_time <= '2021-08-31' AND
+        o.date_time >= '2021-08-01'  
 ) result
 
 group by result.Pname
@@ -338,12 +347,15 @@ order by numProducts desc
 -----------------------------------------FINAL Q8 QUERY (finally)--------------------------
 --a)
     (
-    SELECT DISTINCT p.Pname 
+    SELECT DISTINCT p.Pname
     FROM (
-        SELECT * FROM aii EXCEPT (
+                                                                                                                                                        SELECT *
+            FROM aii
+        EXCEPT
+            (
             SELECT u.UserID, pis.Pname
             FROM ProductInShops AS pis, ProductInOrders AS pio, Orders AS o, Users AS u
-            WHERE pis.SPID = pio.SPID AND pio.orderID = o.OID AND o.UserID = u.userID 
+            WHERE pis.SPID = pio.SPID AND pio.orderID = o.OID AND o.UserID = u.userID
             GROUP BY u.UserID, pis.Pname)
 	) AS p
 )
@@ -354,7 +366,7 @@ INTERSECT
     SELECT DISTINCT p.Pname
     FROM Products AS p
     WHERE EXISTS(
-                                                                    (
+                                                                                                                    (
                 SELECT *
         FROM aii
     EXCEPT
@@ -391,31 +403,40 @@ INTERSECT
 -- 9) Find products that are increasingly being purchased over at least 3 months
 --- i. Aggregate total monthly purchases by products as PurchaseByMonth Table 
 SELECT pName, MONTH(deliverDate) as PurchaseMonth,
-            YEAR(deliverDate) as PurchaseYear, SUM(Oquantity) as totalQuantityPurchased
+    YEAR(deliverDate) as PurchaseYear, SUM(Oquantity) as totalQuantityPurchased
 INTO PurchaseByMonth
-FROM (SELECT pName, q.SPID, Oquantity, deliverDate 
-FROM  ProductInOrders as p, ProductInShops as q
-WHERE p.SPID = q.SPID) as r
+FROM (SELECT pName, q.SPID, Oquantity, deliverDate
+    FROM ProductInOrders as p, ProductInShops as q
+    WHERE p.SPID = q.SPID) as r
 GROUP BY pName, MONTH(deliverDate),YEAR(deliverDate);
 
 --- ii. Get products by product name that have sold increasingly for minimally 3 consecutive months
-WITH PurchaseRow AS (SELECT PName, totalQuantityPurchased, PurchaseMonth,
-                         ROW_NUMBER() OVER(PARTITION BY PName 
+WITH
+    PurchaseRow
+    AS
+    (
+        SELECT PName, totalQuantityPurchased, PurchaseMonth,
+            ROW_NUMBER() OVER(PARTITION BY PName 
                                            ORDER BY PurchaseMonth) rn
-                  FROM PurchaseByMonth),
+        FROM PurchaseByMonth
+    ),
 
-     PurchaseGroup AS (SELECT Base.PName, Base.PurchaseMonth, 
-                         MAX(Restart.rn) OVER(PARTITION BY Base.PName
+    PurchaseGroup
+    AS
+    (
+        SELECT Base.PName, Base.PurchaseMonth,
+            MAX(Restart.rn) OVER(PARTITION BY Base.PName
                                               ORDER BY Base.PurchaseMonth) groupingId
-                  FROM PurchaseRow Base
-                  LEFT JOIN PurchaseRow Restart
-                         ON Restart.PName = Base.PName
-                            AND Restart.rn = Base.rn - 1
-                            AND Restart.totalQuantityPurchased > Base.totalQuantityPurchased)
+        FROM PurchaseRow Base
+            LEFT JOIN PurchaseRow Restart
+            ON Restart.PName = Base.PName
+                AND Restart.rn = Base.rn - 1
+                AND Restart.totalQuantityPurchased > Base.totalQuantityPurchased
+    )
 
-SELECT PName, 
-       COUNT(*) AS consecutiveCount, 
-       MIN(PurchaseMonth) AS startMonth, MAX(PurchaseMonth) AS endMonth
+SELECT PName,
+    COUNT(*) AS consecutiveCount,
+    MIN(PurchaseMonth) AS startMonth, MAX(PurchaseMonth) AS endMonth
 INTO QueryNineProducts
 FROM PurchaseGroup
 GROUP BY PName, groupingId
@@ -423,15 +444,15 @@ HAVING COUNT(*) >= 3
 ORDER BY PName, startMonth;
 
 --- iii. Retrieve corresponding product names 
-SELECT pName 
+SELECT pName
 FROM QueryNineProducts;
 
 ----------------------------------------------------------------------------
 --- Get SPIDs with minimally 3 months records (Not needed but keep in case?)
-SELECT c.SPID, c.PurchaseMonth, c.PurchaseYear, c.totalQuantityPurchased 
+SELECT c.SPID, c.PurchaseMonth, c.PurchaseYear, c.totalQuantityPurchased
 INTO PurchaseByMonthForThreeOrMore
 FROM (SELECT a.SPID, COUNT(*) as cnt
-FROM PurchaseByMonth as a
-GROUP BY a.SPID
-HAVING COUNT(*) > 2) as b, PurchaseByMonth as c
+    FROM PurchaseByMonth as a
+    GROUP BY a.SPID
+    HAVING COUNT(*) > 2) as b, PurchaseByMonth as c
 WHERE c.SPID = b.SPID

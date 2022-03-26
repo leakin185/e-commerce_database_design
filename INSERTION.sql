@@ -439,7 +439,7 @@ INSERT INTO ProductInOrders(OPID, Oprice, Oquantity, orderStatus, deliverDate, o
     (55, 840.00, 1, 'delivered', '2021-07-17', 5, 5),
     (85, 5040.00, 6, 'delivered', '2021-04-21', 8, 5),
     (105, 1680.00, 2, 'delivered', '2021-06-12', 10, 5),
-    (515, 7560.00, 9, 'delivered', '2021-08-31', 51, 5),
+    (515, 8400.00, 10, 'delivered', '2021-08-31', 51, 5),
     (1725, 2520.00, 3, 'delivered', '2021-08-09', 172, 5),
     (26, 390.00, 6, 'delivered', '2021-08-07', 2, 6),
     (648, 5592.00, 6, 'delivered', '2021-08-21', 64, 8),

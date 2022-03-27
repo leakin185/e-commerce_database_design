@@ -125,35 +125,9 @@ FROM(
 
 ----------------------------------------------------------------
 -- 7) For users that made the most amount of complaints, find the most expensive products he/she has ever purchased.
--- return shop-product ID which uniquely identifies the product and also the user ID which made the most amount of complaints
 
--- select the top row with the SPID and the price of the product with the highest price
--- SELECT TOP 1
---     s1.UserID, pio.SPID, (pio.Oprice/pio.Oquantity) as price
--- FROM Users s1, Orders o, ProductInOrders pio
--- WHERE s1.UserID = o.UserID AND
---     o.OID = pio.orderID AND
---     s1.UserID IN (
-
---     -- return user(s) that made the most amount of complaints (including both shop and product complaints)
---     SELECT s.UserID
---     FROM Users s, Complaints c
---     WHERE s.UserID = c.UserID
---     GROUP BY s.UserID
---     HAVING COUNT(*) = (
-
---     SELECT MAX(X.Count)
---     FROM(
---         SELECT s.UserID, COUNT(*) AS Count
---         FROM Users s, Complaints c
---         WHERE s.UserID = c.UserID
---         GROUP BY s.UserID) AS X))
--- GROUP BY s1.UserID, pio.SPID, (pio.Oprice/pio.Oquantity)
--- ORDER BY price DESC
--- order price of product in decreasing order
-
--- if there are more than one users, return the most expensive product purchased for EACH user
-
+-- return shop-product ID which uniquely identifies the product 
+-- if there are more than one users, return the most expensive product(s) purchased for EACH user
 SELECT DISTINCT Y.UserID, pio1.SPID, Y.price
 FROM (
 SELECT s1.UserID, MAX(pio.Oprice/pio.Oquantity) as price
@@ -180,11 +154,6 @@ WHERE s2.UserID = o1.UserID AND
     o1.OID = pio1.orderID AND
     Y.UserID = s2.UserID AND
     (pio1.OPrice/pio1.Oquantity) = Y.Price
-
-
-
-
-
 
 
 ----------------------------------------------------------------
@@ -261,7 +230,7 @@ EXCEPT
 
 SELECT DISTINCT p.Pname
 FROM (
-                                                                                                                                                                                        SELECT *
+                                                                                                                                                                                                                                SELECT *
         FROM aii
     EXCEPT
         (
@@ -382,7 +351,7 @@ order by numProducts desc
     (
     SELECT DISTINCT p.Pname
     FROM (
-                                                                                                                                                                                                                                                                                SELECT *
+                                                                                                                                                                                                                                                                                                                                            SELECT *
             FROM aii
         EXCEPT
             (
@@ -399,7 +368,7 @@ INTERSECT
     SELECT DISTINCT p.Pname
     FROM Products AS p
     WHERE EXISTS(
-                                                                                                                                                            (
+                                                                                                                                                                                (
                 SELECT *
         FROM aii
     EXCEPT

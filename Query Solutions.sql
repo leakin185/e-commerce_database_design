@@ -448,13 +448,3 @@ ORDER BY PName, startMonth;
 --- iii. Retrieve corresponding product names 
 SELECT pName
 FROM QueryNineProducts;
-
-----------------------------------------------------------------------------
---- Get SPIDs with minimally 3 months records (Not needed but keep in case?)
-SELECT c.SPID, c.PurchaseMonth, c.PurchaseYear, c.totalQuantityPurchased
-INTO PurchaseByMonthForThreeOrMore
-FROM (SELECT a.SPID, COUNT(*) as cnt
-    FROM PurchaseByMonth as a
-    GROUP BY a.SPID
-    HAVING COUNT(*) > 2) as b, PurchaseByMonth as c
-WHERE c.SPID = b.SPID

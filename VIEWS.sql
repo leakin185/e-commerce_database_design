@@ -16,7 +16,7 @@ GROUP BY u.UserID, pis.Pname;
 
 
 --for queries Q8b
---link userid and products bought in Aug 2021
+-- link userid and products bought in Aug 2021
 -- CREATE VIEW q8b AS 
 -- SELECT u.UserID, pis.Pname
 -- FROM ProductInShops AS pis, ProductInOrders AS pio, Orders AS o, Users AS u

@@ -45,4 +45,11 @@ HAVING SUM(pio1.Oprice) = Y.MinRevenue
 -- 2. For each shop, find the most loyal customer 
 -- The definition of the most loyal customer is one who spends the most amount of money in the shop AND ordered the highest amount in the shop AND makes the highest ratings in the shop
 
+--from https://stackoverflow.com/questions/907438/can-i-get-the-position-of-a-record-in-a-sql-result-table
+--how to return index of a customer
+
+-- select count(*)
+-- from mytable
+-- where mycolumn < (select mycolumn from mytable where key = 42)
+
 -- 3. Find the shops whose customer service quality (rating) worsened the most over 3 months

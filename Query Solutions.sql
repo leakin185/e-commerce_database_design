@@ -46,16 +46,19 @@ ORDER BY AverageRating DESC;
 
 ----------------------------------------------------------------
 -- 3) For all products purchased in June 2021 that have been delivered, find the average time from the ordering date to the delivery date.
-SELECT AVG(DIFF) as AvgDateDifference
+SELECT DISTINCT Pname, AVG(DIFF) as AvgDateDifference
 FROM (
-    SELECT DIFFERENCE(PIO.deliverDate, o.date_time) AS DIFF
-    FROM Orders as o, ProductInOrders as PIO
+    SELECT PIS.Pname, DIFFERENCE(PIO.deliverDate, o.date_time) AS DIFF
+    FROM Orders as o, ProductInOrders as PIO, ProductInShops AS PIS
     WHERE (o.OID = PIO.orderID)
         -- Order purchased in June 2021
         AND o.date_time BETWEEN '2021-06-01' AND '2021-07-01'
         -- Has been delivered
         AND (PIO.orderStatus = 'delivered')
+        AND (PIO.SPID = PIS.SPID)
 ) as R
+GROUP BY Pname
+
 
 ----------------------------------------------------------------
 -- 4) Let us define the “latency” of an employee by the average that he/she takes to process a complaint. Find the employee with the smallest latency.

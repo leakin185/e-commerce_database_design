@@ -53,3 +53,50 @@ HAVING SUM(pio1.Oprice) = Y.MinRevenue
 -- where mycolumn < (select mycolumn from mytable where key = 42)
 
 -- 3. Find the shops whose customer service quality (rating) worsened the most over 3 months
+
+--- i. Aggregate average Ratings for Shops as RatingsByMonth Table 
+SELECT Sname, MONTH(date_time) as RatingsMonth,
+    YEAR(date_time) as RatingsYear, COUNT(*) as count , CAST(AVG(CAST(rating AS decimal(3,2))) AS decimal(3,2)) as AvgRatings
+INTO RatingsByMonth
+FROM (SELECT Sname, pIS.SPID, fb.rating, fb.date_time
+    FROM Feedback as fb, ProductInOrders as pIO, ProductInShops as pIS
+    WHERE fb.OPID = pIO.OPID AND pIO.SPID = pIS.SPID) as r
+GROUP BY Sname, MONTH(date_time),YEAR(date_time);
+
+--- ii. Get shops by shop name that have ratings decreased for minimally 3 consecutive months
+
+WITH
+    RatingsRow
+    AS
+    (
+        SELECT Sname, AvgRatings, RatingsMonth,
+            ROW_NUMBER() OVER(PARTITION BY Sname 
+                                           ORDER BY RatingsMonth) rn
+        FROM RatingsByMonth
+    ),
+
+    RatingsGroup
+    AS
+    (
+        SELECT Base.Sname, Base.RatingsMonth,
+            MAX(Restart.rn) OVER(PARTITION BY Base.Sname
+                                              ORDER BY Base.RatingsMonth) groupingId
+        FROM RatingsRow Base
+            LEFT JOIN RatingsRow Restart
+            ON Restart.Sname = Base.Sname
+                AND Restart.rn = Base.rn - 1
+                AND Restart.AvgRatings <= Base.AvgRatings
+    )
+
+SELECT Sname,
+	COUNT(*) AS consecutiveCount,
+    MIN(RatingsMonth) AS startMonth, MAX(RatingsMonth) AS endMonth
+INTO QueryRatings
+FROM RatingsGroup
+GROUP BY Sname, groupingId
+HAVING COUNT(*) >= 3
+ORDER BY Sname, startMonth;
+
+--- iii. Retrieve corresponding product names 
+SELECT Sname
+FROM QueryRatings;

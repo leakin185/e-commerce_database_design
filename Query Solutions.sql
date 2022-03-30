@@ -57,23 +57,21 @@ FROM (
         AND (PIO.orderStatus = 'delivered')
         AND (PIO.SPID = PIS.SPID)
 ) as R
-GROUP BY Pname
+GROUP BY Pname;
 
 
 ----------------------------------------------------------------
 -- 4) Let us define the “latency” of an employee by the average that he/she takes to process a complaint. Find the employee with the smallest latency.
 --Find minimum average Latency
-SELECT X.EmployeeID
-FROM (SELECT EmployeeID, AVG(DATEDIFF(hour, filed_date_time, handled_date_time)) AS [Latency]
-    FROM Complaints AS C
-    WHERE handled_date_time IS NOT NULL
-    GROUP BY EmployeeID) AS X
+WITH AverageLatency AS 
+	(SELECT EmployeeID, AVG(DATEDIFF(hour, filed_date_time, handled_date_time)) AS [Latency]
+	FROM Complaints AS C WHERE handled_date_time IS NOT NULL GROUP BY EmployeeID)
+
+SELECT EmployeeID, Latency
+FROM AverageLatency
 WHERE Latency =
-(SELECT MIN(Latency) AS MinLatency
-FROM (SELECT EmployeeID, AVG(DATEDIFF(hour, filed_date_time, handled_date_time)) AS [Latency]
-    FROM Complaints AS C
-    WHERE handled_date_time IS NOT NULL
-    GROUP BY EmployeeID) AS Y)
+	(SELECT MIN(Latency) AS MinLatency
+	FROM AverageLatency)
 GROUP BY EmployeeID
 
 ----------------------------------------------------------------

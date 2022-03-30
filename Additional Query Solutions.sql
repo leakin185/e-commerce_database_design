@@ -56,6 +56,9 @@ HAVING SUM(pio1.Oprice) = Y.MinRevenue
 -- 3. Find the shops whose customer service quality (rating) worsened the most over 3 months
 
 --- i. Aggregate average Ratings for Shops as RatingsByMonth Table 
+DROP TABLE RatingsByMonth
+DROP TABLE QueryRatings
+
 SELECT Sname, MONTH(date_time) as RatingsMonth,
     YEAR(date_time) as RatingsYear, COUNT(*) as count , CAST(AVG(CAST(rating AS decimal(3,2))) AS decimal(3,2)) as AvgRatings
 INTO RatingsByMonth
@@ -98,6 +101,17 @@ GROUP BY Sname, groupingId
 HAVING COUNT(*) >= 3
 ORDER BY Sname, startMonth;
 
---- iii. Retrieve corresponding product names 
-SELECT Sname
-FROM QueryRatings;
+--- iii. Retrieve corresponding shop names that have their ratings worsened the most
+
+WITH CompareRatings AS(
+	SELECT RBM.Sname, RBM.RatingsMonth, RBM.AvgRatings
+	FROM RatingsByMonth AS RBM, QueryRatings AS QR
+	WHERE RBM.Sname = QR.Sname AND (RBM.RatingsMonth = QR.startMonth OR RBM.RatingsMonth = QR.endMonth)
+)
+
+SELECT X.Sname, (X.AvgRatings - Y.AvgRatings) AS RatingsDropped
+FROM CompareRatings AS X, CompareRatings AS Y
+WHERE X.Sname=Y.Sname AND X.RatingsMonth <> Y.RatingsMonth AND X.AvgRatings < Y.AvgRatings
+AND (X.AvgRatings - Y.AvgRatings) = (SELECT MIN(X.AvgRatings - Y.AvgRatings) 
+										   FROM CompareRatings AS X, CompareRatings AS Y 
+										   WHERE X.Sname=Y.Sname AND X.RatingsMonth <> Y.RatingsMonth AND X.AvgRatings < Y.AvgRatings)

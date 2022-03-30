@@ -1,6 +1,7 @@
 -- 1. For each shop, come up with its product development strategies
 -- 1.1 find the product per category which produces the highest revenue 
 -- each shop has 2 categories each and has at least 2 products per category
+-- Oprice = total revenue associated with a specific product for a specific order
 
 SELECT Y.name AS ShopName, Y.Category, p1.Pname AS ProductName, Y.MaxRevenue
 FROM (
@@ -89,7 +90,7 @@ WITH
     )
 
 SELECT Sname,
-	COUNT(*) AS consecutiveCount,
+    COUNT(*) AS consecutiveCount,
     MIN(RatingsMonth) AS startMonth, MAX(RatingsMonth) AS endMonth
 INTO QueryRatings
 FROM RatingsGroup

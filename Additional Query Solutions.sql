@@ -53,12 +53,9 @@ HAVING SUM(pio1.Oprice) = Y.MinRevenue
 -- from mytable
 -- where mycolumn < (select mycolumn from mytable where key = 42)
 
--- 3. Find the shops whose customer service quality (rating) worsened the most over 3 months
+-- 3. Find the shops whose customer service quality (rating) worsened the most over at least 3 months
 
 --- i. Aggregate average Ratings for Shops as RatingsByMonth Table 
-DROP TABLE RatingsByMonth
-DROP TABLE QueryRatings
-
 SELECT Sname, MONTH(date_time) as RatingsMonth,
     YEAR(date_time) as RatingsYear, COUNT(*) as count , CAST(AVG(CAST(rating AS decimal(3,2))) AS decimal(3,2)) as AvgRatings
 INTO RatingsByMonth

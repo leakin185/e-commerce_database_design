@@ -49,7 +49,9 @@ HAVING SUM(pio1.Oprice) = Y.MinRevenue
 
 --from https://www.sqlshack.com/overview-of-sql-rank-functions/
 
-WITH r AS (
+--needed to create 2 views then can do the code
+
+CREATE VIEW aq2i AS(
 	SELECT o.UserID, pis.Sname, 
 	SUM(pio.oprice) AS totalpricespent,
 	MAX(f.rating) AS maxrating,
@@ -59,18 +61,18 @@ WITH r AS (
 	GROUP BY o.UserID,pis.Sname
 )
 
+CREATE VIEW aq2ii AS(
+	SELECT UserID, Sname, totalpricespent, maxrating, numorders,
+		   ROW_NUMBER() OVER(ORDER BY totalpricespent DESC) RankingPrice,
+		   ROW_NUMBER() OVER(ORDER BY maxrating DESC) RankingRating,
+		   ROW_NUMBER() OVER(ORDER BY numorders DESC) RankingNumOrders
+	FROM aq2i)
 
-	SELECT r.UserID, r.Sname, totalpricespent, maxrating, numorders,
-		   ROW_NUMBER() OVER(ORDER BY r.totalpricespent DESC) RankingPrice,
-		   ROW_NUMBER() OVER(ORDER BY r.maxrating DESC) RankingRating,
-		   ROW_NUMBER() OVER(ORDER BY r.numorders DESC) RankingNumOrders
-    INTO z
-	FROM r
-	
-SELECT *,
+
+SELECT UserID, Sname, 
 		ROW_NUMBER() OVER(ORDER BY (RankingPrice + RankingRating + RankingNumOrders) / 3) AvgRanking
-FROM z
---ORDER BY SName
+FROM aq2ii
+ORDER BY SName, AvgRanking
 
 
 

@@ -63,15 +63,21 @@ GROUP BY Pname;
 ----------------------------------------------------------------
 -- 4) Let us define the “latency” of an employee by the average that he/she takes to process a complaint. Find the employee with the smallest latency.
 --Find minimum average Latency
-WITH AverageLatency AS 
-	(SELECT EmployeeID, AVG(DATEDIFF(hour, filed_date_time, handled_date_time)) AS [Latency]
-	FROM Complaints AS C WHERE handled_date_time IS NOT NULL GROUP BY EmployeeID)
+WITH
+    AverageLatency
+    AS
+    (
+        SELECT EmployeeID, AVG(DATEDIFF(hour, filed_date_time, handled_date_time)) AS [Latency]
+        FROM Complaints AS C
+        WHERE handled_date_time IS NOT NULL
+        GROUP BY EmployeeID
+    )
 
 SELECT EmployeeID, Latency
 FROM AverageLatency
 WHERE Latency =
 	(SELECT MIN(Latency) AS MinLatency
-	FROM AverageLatency)
+FROM AverageLatency)
 GROUP BY EmployeeID
 
 ----------------------------------------------------------------
@@ -231,7 +237,7 @@ EXCEPT
 
 SELECT DISTINCT p.Pname
 FROM (
-                                                                                                                                                                                                                                SELECT *
+                                                                                                                                                                                                                                        SELECT *
         FROM aii
     EXCEPT
         (
@@ -352,7 +358,7 @@ order by numProducts desc
     (
     SELECT DISTINCT p.Pname
     FROM (
-                                                                                                                                                                                                                                                                                                                                            SELECT *
+                                                                                                                                                                                                                                                                                                                                                        SELECT *
             FROM aii
         EXCEPT
             (
@@ -369,7 +375,7 @@ INTERSECT
     SELECT DISTINCT p.Pname
     FROM Products AS p
     WHERE EXISTS(
-                                                                                                                                                                                (
+                                                                                                                                                                                    (
                 SELECT *
         FROM aii
     EXCEPT
@@ -449,3 +455,37 @@ ORDER BY Pname, startMonth;
 --- iii. Retrieve corresponding product names 
 SELECT Pname
 FROM QueryNineProducts;
+
+-- 8. updated version
+-- find all products never purchased by at least one user and save into view
+CREATE VIEW products_not_purchased
+AS
+    SELECT DISTINCT result.Pname
+    FROM (
+             SELECT *
+            FROM aii
+        except
+            (
+            SELECT u.UserID, pis.Pname
+            FROM ProductInShops AS pis, ProductInOrders AS pio, Orders AS o, Users AS u
+            WHERE pis.SPID = pio.SPID AND pio.orderID = o.OID AND o.UserID = u.userID
+            GROUP BY u.UserID, pis.Pname
+ ) ) result
+
+-- find all products purchased by user in Aug that is in products not purchased
+SELECT TOP 5
+    result.Pname, SUM(result.Oquantity) AS numProducts
+FROM
+    (SELECT o.UserID, pis.Pname, pio.Oquantity, o.date_time
+    FROM ProductInOrders pio, Orders o, ProductInShops pis
+    WHERE
+pis.Pname in (SELECT Pname
+        FROM products_not_purchased) AND
+        pis.SPID = pio.SPID AND
+        o.OID = pio.orderID AND
+        o.date_time <= '2021-08-31' AND
+        o.date_time >= '2021-08-01'  
+) result
+GROUP BY result.Pname
+ORDER BY numProducts DESC
+

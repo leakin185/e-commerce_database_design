@@ -69,11 +69,23 @@ CREATE VIEW aq2ii AS(
 	FROM aq2i)
 
 
-SELECT UserID, Sname, 
-		ROW_NUMBER() OVER(ORDER BY (RankingPrice + RankingRating + RankingNumOrders) / 3) AvgRanking
-FROM aq2ii
-ORDER BY SName, AvgRanking
+CREATE VIEW aq2iii AS (
+SELECT TOP 100 PERCENT UserID, Sname, 
+				 ROW_NUMBER() OVER(ORDER BY (RankingPrice + RankingRating + RankingNumOrders) / 3) AvgRanking
+		FROM aq2ii
+		ORDER BY SName, AvgRanking
+		)
 
+WITH aq2iv AS (
+  SELECT
+    *,
+    ROW_NUMBER() OVER(PARTITION BY Sname ORDER BY AvgRanking ASC) AS r
+  FROM aq2iii
+)
+SELECT
+  Sname, UserID
+FROM aq2iv
+WHERE r = 1
 
 
 -- 3. Find the shops whose customer service quality (rating) worsened the most over at least 3 months

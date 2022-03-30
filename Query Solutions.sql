@@ -407,21 +407,21 @@ INTERSECT
 ----------------------------------------------------------------
 -- 9) Find products that are increasingly being purchased over at least 3 months
 --- i. Aggregate total monthly purchases by products as PurchaseByMonth Table 
-SELECT pName, MONTH(date_time) as PurchaseMonth,
+SELECT Pname, MONTH(date_time) as PurchaseMonth,
     YEAR(date_time) as PurchaseYear, SUM(Oquantity) as totalQuantityPurchased
 INTO PurchaseByMonth
-FROM (SELECT pName, q.SPID, Oquantity, r.date_time
+FROM (SELECT Pname, q.SPID, Oquantity, r.date_time
     FROM ProductInOrders as p, ProductInShops as q, Orders as r
     WHERE p.SPID = q.SPID AND p.OrderID=r.OID) as s
-GROUP BY pName, MONTH(date_time),YEAR(date_time);
+GROUP BY Pname, MONTH(date_time),YEAR(date_time);
 
 --- ii. Get products by product name that have sold increasingly for minimally 3 consecutive months
 WITH
     PurchaseRow
     AS
     (
-        SELECT PName, totalQuantityPurchased, PurchaseMonth,
-            ROW_NUMBER() OVER(PARTITION BY PName 
+        SELECT Pname, totalQuantityPurchased, PurchaseMonth,
+            ROW_NUMBER() OVER(PARTITION BY Pname 
                                            ORDER BY PurchaseMonth) rn
         FROM PurchaseByMonth
     ),
@@ -429,25 +429,25 @@ WITH
     PurchaseGroup
     AS
     (
-        SELECT Base.PName, Base.PurchaseMonth,
-            MAX(Restart.rn) OVER(PARTITION BY Base.PName
+        SELECT Base.Pname, Base.PurchaseMonth,
+            MAX(Restart.rn) OVER(PARTITION BY Base.Pname
                                               ORDER BY Base.PurchaseMonth) groupingId
         FROM PurchaseRow Base
             LEFT JOIN PurchaseRow Restart
-            ON Restart.PName = Base.PName
+            ON Restart.Pname = Base.Pname
                 AND Restart.rn = Base.rn - 1
                 AND Restart.totalQuantityPurchased >= Base.totalQuantityPurchased
     )
 
-SELECT PName,
+SELECT Pname,
     COUNT(*) AS consecutiveCount,
     MIN(PurchaseMonth) AS startMonth, MAX(PurchaseMonth) AS endMonth
 INTO QueryNineProducts
 FROM PurchaseGroup
-GROUP BY PName, groupingId
+GROUP BY Pname, groupingId
 HAVING COUNT(*) >= 3
-ORDER BY PName, startMonth;
+ORDER BY Pname, startMonth;
 
 --- iii. Retrieve corresponding product names 
-SELECT pName
+SELECT Pname
 FROM QueryNineProducts;

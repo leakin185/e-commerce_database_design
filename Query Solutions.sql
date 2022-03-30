@@ -57,7 +57,7 @@ FROM (
         AND (PIO.orderStatus = 'delivered')
         AND (PIO.SPID = PIS.SPID)
 ) as R
-GROUP BY Pname
+GROUP BY Pname;
 
 
 ----------------------------------------------------------------
@@ -67,7 +67,7 @@ WITH AverageLatency AS
 	(SELECT EmployeeID, AVG(DATEDIFF(hour, filed_date_time, handled_date_time)) AS [Latency]
 	FROM Complaints AS C WHERE handled_date_time IS NOT NULL GROUP BY EmployeeID)
 
-SELECT EmployeeID
+SELECT EmployeeID, Latency
 FROM AverageLatency
 WHERE Latency =
 	(SELECT MIN(Latency) AS MinLatency

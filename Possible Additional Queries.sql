@@ -9,7 +9,7 @@
 -- TODO: select the top 3 for each shop
 
 -- for each shop, for each user ID, return the number of orders ordered in descending order
-SELECT X.Sname, o1.UserID, COUNT(*) as numOrders
+SELECT X.Sname, o1.UserID, SUM(pio1.Oquantity) as numItems
 FROM(
 -- return popular shops
 SELECT pis.Sname, COUNT(*) AS Num
@@ -24,7 +24,7 @@ WHERE X.Sname = pis1.Sname AND
     o1.OID = pio1.orderID AND
     pio1.SPID = pis1.SPID
 GROUP BY X.Sname, o1.UserID
-ORDER BY x.Sname, numOrders DESC
+ORDER BY x.Sname, numItems DESC
 
 
 -- 3. Find the lowest history price of ‘iPhone Xs’ across all shops. List the corresponding shopID, timestamp and prices
